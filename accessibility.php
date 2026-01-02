@@ -833,3 +833,140 @@ function wrap_days_items_in_listroles() {
     <?php
 }
 add_action('wp_footer', 'wrap_days_items_in_listroles');
+
+function change_h2_to_div_form_error_alert() {
+	?>
+		<script type="text/javascript">
+		    new MutationObserver(() => {
+      const error = document.querySelector('.gform_validation_errors');
+      if(error) {
+        const title = error.querySelector('h2');
+        if(title) {
+                  const div = document.createElement('div');
+        div.className = title.className;
+        div.innerText = title.innerText;
+        title.replaceWith(div);
+        }
+      }
+    }).observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+		</script>
+	<?php
+}
+add_action('wp_footer', 'change_h2_to_div_form_error_alert');
+
+//Button open modal focus back when modal closed
+//Class required on the container of images: ally-modal-listener
+add_action('wp_footer', function () {
+    ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  let modalFound = false;
+
+  function handleEscape(opener) {
+    const onKey = (e) => {
+      const modal = document.querySelector(".dialog-widget-content");
+      
+      if (!modal) {
+        document.removeEventListener("keydown", onKey);
+        return;
+      }
+
+      if (e.key === "Escape") {
+        document.removeEventListener("keydown", onKey);
+        setTimeout(() => opener.focus(), 700);
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+  }
+
+  function attachCloseEvents(closeBtn, opener) {
+    const returnFocus = () => setTimeout(() => opener.focus(), 500);
+
+    closeBtn.addEventListener('click', returnFocus);
+
+    closeBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') returnFocus();
+    });
+
+    handleEscape(opener);
+  }
+
+  function observeModal(opener) {
+    const observer = new MutationObserver(() => {
+      const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
+      if (!closeBtn) return;
+
+      modalFound = true;
+      attachCloseEvents(closeBtn, opener);
+      observer.disconnect();
+    });
+
+    observer.observe(document.body, { subtree: true, childList: true });
+  }
+
+  document.querySelectorAll('.ally-modal-listener a').forEach(opener => {
+    opener.addEventListener('click', () => {
+      if (modalFound) {
+        const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
+        if (closeBtn) attachCloseEvents(closeBtn, opener);
+      } else {
+        observeModal(opener);
+      }
+    });
+  });
+
+});
+</script>
+    <?php
+});
+
+//Gravity form prevent enter key
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
+            const fields = document.querySelectorAll(
+                '.gform_wrapper form input:not([type="submit"]):not([type="button"]), ' +
+                '.gform_wrapper form select, ' +
+                '.gform_wrapper form textarea'
+            );
+            fields.forEach(input => {
+				if (input.type === "textarea") return;
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                    }
+                });
+            });
+        })();
+    </script>
+    <?php
+});
+   
+
+//Gravity form select checkboxes with Enter key
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
+            const fields = document.querySelectorAll(
+                '.gform_wrapper form input[type="checkbox"]'
+            );
+            fields.forEach(input => {
+				input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+						input.click();
+                    }
+                });
+                
+            });
+        })();
+    </script>
+    <?php
+});
