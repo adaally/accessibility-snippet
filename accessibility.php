@@ -970,3 +970,20 @@ add_action('wp_footer', function () {
     </script>
     <?php
 });
+
+//Remove tabindex from link
+function remove_tabindex_from_link() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.remove-tabindex').forEach(function (wrapper) {
+            const link = wrapper.querySelector('a');
+            if (link) {
+                link.setAttribute('tabindex', '-1');
+            }
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'remove_tabindex_from_link');
