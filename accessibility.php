@@ -1,3 +1,134 @@
+//Hide Elementor Device Mode Span from Screen Readers (Front End ONLY)
+add_action('wp_head', function () {
+
+    ?>
+
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function () {
+
+        const el = document.getElementById('elementor-device-mode');
+
+        if (el) {
+
+          el.setAttribute('aria-hidden', 'true');
+
+        }
+
+      });
+
+    </script>
+
+    <?php
+
+});
+
+ 
+
+//Remove GF Error Text Heading (Front End ONLY)
+add_action('wp_footer', function () {
+
+    ?>
+
+    <script>
+
+    (function() {
+
+        function replaceErrorHeading() {
+
+            const errorHeading = document.querySelector('.gform_validation_errors > h2');
+
+            if (errorHeading) {
+
+                const p = document.createElement('p');
+
+                p.className = errorHeading.className;
+
+                p.innerHTML = errorHeading.innerHTML;
+
+                errorHeading.replaceWith(p);
+
+            }
+
+        }
+
+ 
+
+        document.addEventListener('DOMContentLoaded', replaceErrorHeading);
+
+ 
+
+        const observer = new MutationObserver(replaceErrorHeading);
+
+        observer.observe(document.body, {
+
+            childList: true,
+
+            subtree: true
+
+        });
+
+    })();
+
+    </script>
+
+    <style>
+
+    .gform_validation_errors {
+
+        border: 1px solid #e04b39;
+
+        background-color: #fdf2f2;
+
+        padding: 12px 16px;
+
+        color: #c02b0a;
+
+        font-family: inherit;
+
+        font-size: 15px;
+
+        line-height: 32px;
+
+        border-radius: 0 !important;
+
+        text-align: left;
+
+    }
+
+ 
+
+    .gform_validation_errors p {
+
+        margin: 0;
+
+        font-weight: normal;
+
+        padding: 0;
+
+        color: inherit;
+
+        line-height: inherit;
+
+        font-size: inherit;
+
+    }
+
+ 
+
+    .gform_validation_errors .gform-icon {
+
+        margin-right: 0.35em;
+
+        vertical-align: text-top;
+
+    }
+
+    </style>
+
+    <?php
+
+});
 
 function fix_tab_list() {
 	    ?>
