@@ -923,29 +923,6 @@ function change_h3_to_h2() {
 }
 add_action('wp_footer', 'change_h3_to_h2');
 
-function change_h2_to_div_form_error_alert() {
-	?>
-		<script type="text/javascript">
-		    new MutationObserver(() => {
-      const error = document.querySelector('.gform_validation_errors');
-      if(error) {
-        const title = error.querySelector('h2');
-        if(title) {
-                  const div = document.createElement('div');
-        div.className = title.className;
-        div.innerText = title.innerText;
-        title.replaceWith(div);
-        }
-      }
-    }).observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-		</script>
-	<?php
-}
-add_action('wp_footer', 'change_h2_to_div_form_error_alert');
-
 function wrap_days_items_in_listroles() {
     ?>
     <script>
