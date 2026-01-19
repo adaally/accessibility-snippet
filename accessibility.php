@@ -1095,5 +1095,24 @@ add_action('wp_footer', function () {
 	<?php
 });
 
+//Adding list semantics to accordions -> (ally-list-accordion) class to the parent
+add_action('wp_footer', function () {
+    ?>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+			  document.querySelectorAll('.ally-list-accordion').forEach(wrapper => {
+				const collection = wrapper.querySelector('.ae-post-collection');
+				if (!collection) return;
+
+				collection.setAttribute('role', 'list');
+
+				collection.querySelectorAll(':scope > article').forEach(article => {
+				  article.setAttribute('role', 'listitem');
+				});
+			  });
+			});
+		</script>
+	<?php
+});
 
 
