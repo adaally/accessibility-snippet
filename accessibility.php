@@ -1062,7 +1062,7 @@ add_action('wp_footer', function () {
     <script>
         (function() {
             const fields = document.querySelectorAll(
-                '.gform_wrapper form input[type="checkbox"]'
+                '.gform_wrapper form input[type="checkbox"], .gform_wrapper form input[type="radio"]'
             );
             fields.forEach(input => {
 				input.addEventListener('keydown', function(e) {
