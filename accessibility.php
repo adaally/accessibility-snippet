@@ -423,9 +423,8 @@ function my_custom_styles() {
 }
 add_action('wp_enqueue_scripts', 'my_custom_styles');
 
-
 // Thumbnail accessibility
-// Cascading function that uses ally-lt as the selector
+// Cascading function that uses ally-tl as the selector
 function thumbnailAccessibility() {
     ?>
     <script>
@@ -473,7 +472,6 @@ function thumbnailAccessibility() {
     <?php
 }
 add_action('wp_footer', 'thumbnailAccessibility');
-
 
 //Add list semantics to visual lists
 //Fountain function that uses ally-ls as the selector; At least two elements in the list must have the selector. 
@@ -572,6 +570,7 @@ function add_roles_and_classes_for_accessibility() {
 }
 
 add_action('wp_footer', 'add_roles_and_classes_for_accessibility');
+
 
 //Add list semantics too accordions
 //Cascading function that uses ally-als as the selector
@@ -756,12 +755,14 @@ function hero_slider_accessible() {
 }
 add_action('wp_footer', 'hero_slider_accessible');
 
-function pdf_list_accessible() {
-	?>
-		<script type="text/javascript">
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
 			const ALLY_LIST_PDF = ".ally-list-pdf";
 			document.addEventListener('DOMContentLoaded', () => {
 				const listContainer = document.querySelector(ALLY_LIST_PDF+ ' .ae-acf-repeater-widget-wrapper .ae-acf-repeater-wrapper');
+				if(!listContainer) return;
 				listContainer.setAttribute('role', 'list');
 				listContainer.querySelectorAll(':scope > .ae-acf-repeater-item').forEach(element => {
 					element.setAttribute('role', 'listitem');
@@ -785,15 +786,17 @@ function pdf_list_accessible() {
 				});
 
 			});
-		</script>
-	<?php
-}
-add_action('wp_footer', 'pdf_list_accessible');
+        })();
+    </script>
+    <?php
+});
 
-function nested_list_accessible() {
-	?>
-		<script type="text/javascript">
-			const ALLY_NESTED_LIST = ".ally-nested-list";
+
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
+				const ALLY_NESTED_LIST = ".ally-nested-list";
 			document.addEventListener('DOMContentLoaded', () => {
 				let globalList = null;
 				document.querySelectorAll(ALLY_NESTED_LIST + ' section').forEach((section, index) => {
@@ -813,16 +816,16 @@ function nested_list_accessible() {
 				});
 
 			});
-		</script>
-	<?php
-}
-add_action('wp_footer', 'nested_list_accessible');
+        })();
+    </script>
+    <?php
+});
 
-	
-function list_link_accessible() {
-	?>
-		<script type="text/javascript">
-			const ALLY_LIST_EMPLOYMENT = ".ally-list-employment";
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
+const ALLY_LIST_EMPLOYMENT = ".ally-list-employment";
 			document.addEventListener('DOMContentLoaded', () => {
 				document.querySelectorAll(ALLY_LIST_EMPLOYMENT + ' article').forEach((item, index) => {
 					if(index === 0){
@@ -875,15 +878,16 @@ function list_link_accessible() {
 				}
 
 			});
-		</script>
-	<?php
-}
-add_action('wp_footer', 'list_link_accessible');
+        })();
+    </script>
+    <?php
+});
+
 	
-function change_h3_to_h2() {
-	?>
-		<script type="text/javascript">
-			const ALLY_H2_CLASS = ".change_to_h2";
+add_action('wp_footer', function () {
+    ?>
+    <script>
+		const ALLY_H2_CLASS = ".change_to_h2";
 			document.addEventListener('DOMContentLoaded', () => {
 				document.querySelectorAll(ALLY_H2_CLASS + ' h3').forEach((h3Element) => {
 					h3Element.setAttribute('aria-level', '2');
@@ -920,13 +924,11 @@ function change_h3_to_h2() {
 			});
 		</script>
 	<?php
-}
-add_action('wp_footer', 'change_h3_to_h2');
-
-function wrap_days_items_in_listroles() {
+});
+add_action('wp_footer', function () {
     ?>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+		    document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.ally-tls').forEach(function (daysWrapper) {
             const daysContainer = daysWrapper.querySelector('.uael-days');
             if (daysContainer) {
@@ -937,15 +939,13 @@ function wrap_days_items_in_listroles() {
             }
         });
     });
-    </script>
-    <?php
-}
-add_action('wp_footer', 'wrap_days_items_in_listroles');
-
-function change_h2_to_div_form_error_alert() {
-	?>
-		<script type="text/javascript">
-		    new MutationObserver(() => {
+		</script>
+	<?php
+});
+add_action('wp_footer', function () {
+    ?>
+    <script>
+				    new MutationObserver(() => {
       const error = document.querySelector('.gform_validation_errors');
       if(error) {
         const title = error.querySelector('h2');
@@ -962,8 +962,7 @@ function change_h2_to_div_form_error_alert() {
     });
 		</script>
 	<?php
-}
-add_action('wp_footer', 'change_h2_to_div_form_error_alert');
+});
 
 //Button open modal focus back when modal closed
 //Class required on the container of images: ally-modal-listener
@@ -1079,11 +1078,12 @@ add_action('wp_footer', function () {
     <?php
 });
 
+
 //Remove tabindex from link
-function remove_tabindex_from_link() {
+add_action('wp_footer', function () {
     ?>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+		    document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.remove-tabindex').forEach(function (wrapper) {
             const link = wrapper.querySelector('a');
             if (link) {
@@ -1091,7 +1091,9 @@ function remove_tabindex_from_link() {
             }
         });
     });
-    </script>
-    <?php
-}
-add_action('wp_footer', 'remove_tabindex_from_link');
+		</script>
+	<?php
+});
+
+
+
