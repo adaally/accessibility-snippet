@@ -1115,4 +1115,17 @@ add_action('wp_footer', function () {
 	<?php
 });
 
-
+function add_signature() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.gfield_signature_container.ginput_container canvas').forEach(function (signature) {
+            signature.tabIndex = "0";
+			signature.setAttribute("aria-roledescription", "Signature");
+			signature.setAttribute("aria-description", "Sign your name");
+        });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'add_signature');
