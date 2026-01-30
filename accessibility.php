@@ -130,12 +130,14 @@ add_action('wp_footer', function () {
 
 });
 
-function fix_tab_list() {
-	    ?>
+add_action('wp_footer', 'fix_tablist_to_list');
+
+//.ally-accordion is required as the parent
+function fix_tablist_to_list() {
+    ?>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
-	  const acc = document.querySelector('.e-n-accordion');
-  if (!acc) return;
+	  document.querySelectorAll('.ally-accordion .e-n-accordion').forEach(acc => {
 	acc.removeAttribute('aria-label');
 	acc.querySelectorAll('details').forEach(item => {
 		item.querySelectorAll('[role="region"]').forEach(element => {
@@ -184,13 +186,12 @@ document.addEventListener('DOMContentLoaded', () => {
   acc.querySelectorAll('summary.e-n-accordion-item-title').forEach(summary => {
     mo.observe(summary, { attributes: true, attributeFilter: ['tabindex'] });
   });
-});
+      })
 
-		    </script>
+});
+    </script>
     <?php
 }
-
-add_action('wp_footer', 'fix_tab_list');
 
 // Convert gravity form headings to h2
 // Cascading function that uses ally-gh2 as the selector
