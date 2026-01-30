@@ -1128,3 +1128,54 @@ function add_signature() {
     <?php
 }
 add_action('wp_footer', 'add_signature');
+
+function add_label_to_captcha() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+	  const observer = new MutationObserver(() => {
+		document.querySelectorAll('.g-recaptcha-response').forEach(textarea => {
+		  // avoid duplicating labels
+		  if (textarea.dataset.hasLabel) return;
+
+		  const id = textarea.id || `recaptcha-${Math.random().toString(36).slice(2)}`;
+		  textarea.id = id;
+
+		  const label = document.createElement('label');
+		  label.setAttribute('for', id);
+		  label.className = 'visually-hidden';
+		  label.textContent = 'reCAPTCHA verification';
+
+		  textarea.parentNode.insertBefore(label, textarea);
+
+		  textarea.dataset.hasLabel = 'true';
+		});
+	  });
+
+	  observer.observe(document.body, {
+		childList: true,
+		subtree: true
+	  });
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'add_label_to_captcha');
+
+function add_extra_description_to_firetrucks_info_btn() {
+    ?>
+    <script>
+	  document.querySelectorAll('.ally-add-extra-desc-to-btns').forEach(container => {
+			container.querySelectorAll('.elementor-heading-title').forEach(title => {
+				title.id = 'title_id_' + Math.random().toString(36).substring(2, 6 + 2);
+				const parentItem = title.closest('.has_ae_slider');
+				if(!parentItem)return;
+				
+				const summary = parentItem.querySelector('summary');
+				summary.setAttribute('aria-describedby', title.id);
+			})
+	  });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'add_extra_description_to_firetrucks_info_btn');
