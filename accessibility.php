@@ -1034,27 +1034,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //Gravity form prevent enter key
 add_action('wp_footer', function () {
-    ?>
-    <script>
-        (function() {
-            const fields = document.querySelectorAll(
-                '.gform_wrapper form input:not([type="submit"]):not([type="button"]), ' +
-                '.gform_wrapper form select, ' +
-                '.gform_wrapper form textarea'
-            );
-            fields.forEach(input => {
-				if (input.type === "textarea") return;
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                    }
-                });
-            });
-        })();
-    </script>
-    <?php
+	?>
+		<script>
+		(function () {
+		  document.addEventListener('keydown', function (e) {
+			if (e.key !== 'Enter') return;
+
+			const input = e.target.closest(
+			  '.gform_wrapper form input[type="checkbox"], .gform_wrapper form input[type="radio"]'
+			);
+
+			if (!input) return;
+
+			e.preventDefault();
+			input.click();
+		  });
+		})();
+		</script>
+	<?php
 });
-   
+
 
 //Gravity form select checkboxes with Enter key
 add_action('wp_footer', function () {
