@@ -1,3 +1,40 @@
+//Listen only allowed element in the lightbox image modal
+add_action('wp_head', function () {
+
+    ?>
+
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function () {
+
+		document.addEventListener('click', function (e) {
+		  var lightbox = e.target.closest('.elementor-lightbox');
+		  if (!lightbox) return;
+
+		  // If user clicked actual controls → let Elementor handle it
+		  var allow = e.target.closest(
+			'.dialog-close-button, ' +
+			'.elementor-swiper-button, ' +
+			'img'
+		  );
+
+		  if (allow) return;
+
+		  // If it's the backdrop itself → allow close
+		  if (e.target === lightbox) return;
+
+		  // Otherwise, stop accidental close
+		  e.stopPropagation();
+		}, true);
+
+
+	  })
+    </script>
+
+    <?php
+
+});
+
 //Hide Elementor Device Mode Span from Screen Readers (Front End ONLY)
 add_action('wp_head', function () {
 
