@@ -1075,7 +1075,7 @@ add_action('wp_footer', function () {
 			if (e.key !== 'Enter') return;
 
 			const input = e.target.closest(
-			  '.gform_wrapper form input[type="checkbox"], .gform_wrapper form input[type="radio"]'
+			  'form input[type="checkbox"],form input[type="radio"], form select'
 			);
 
 			if (!input) return;
@@ -1086,29 +1086,6 @@ add_action('wp_footer', function () {
 		})();
 		</script>
 	<?php
-});
-
-
-//Gravity form select checkboxes with Enter key
-add_action('wp_footer', function () {
-    ?>
-    <script>
-        (function() {
-            const fields = document.querySelectorAll(
-                'form input[type="checkbox"], form input[type="radio"]'
-            );
-            fields.forEach(input => {
-				input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-						input.click();
-                    }
-                });
-                
-            });
-        })();
-    </script>
-    <?php
 });
 
 
