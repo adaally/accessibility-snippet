@@ -1155,13 +1155,40 @@ add_action('wp_footer', function () {
 function add_signature() {
     ?>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.gfield_signature_container.ginput_container canvas').forEach(function (signature) {
-            signature.tabIndex = "0";
-			signature.setAttribute("aria-roledescription", "Signature");
-			signature.setAttribute("aria-description", "Sign your name");
-        });
-    });
+		function enhanceSignatureCanvas(root = document) {
+		  root
+			.querySelectorAll('.gfield_signature_container.ginput_container canvas:not([data-a11y-enhanced])')
+			.forEach(canvas => {
+			  canvas.tabIndex = 0;
+			  canvas.setAttribute('aria-roledescription', 'Signature');
+			  canvas.setAttribute('aria-description', 'Sign your name');
+			  canvas.dataset.a11yEnhanced = 'true';
+			});
+		}
+
+		// run once for already-existing nodes
+		enhanceSignatureCanvas();
+
+		const observer = new MutationObserver(mutations => {
+		  mutations.forEach(mutation => {
+			mutation.addedNodes.forEach(node => {
+			  if (node.nodeType !== 1) return;
+
+			  // if the node itself is relevant
+			  if (node.matches?.('.gfield_signature_container.ginput_container canvas')) {
+				enhanceSignatureCanvas(node.parentElement);
+			  }
+
+			  // or if it contains relevant children
+			  enhanceSignatureCanvas(node);
+			});
+		  });
+		});
+
+		observer.observe(document.body, {
+		  childList: true,
+		  subtree: true
+		});
     </script>
     <?php
 }
