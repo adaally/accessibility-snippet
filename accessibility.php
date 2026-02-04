@@ -167,10 +167,8 @@ add_action('wp_footer', function () {
 
 });
 
-add_action('wp_footer', 'fix_tablist_to_list');
-
 //.ally-accordion is required as the parent
-function fix_tablist_to_list() {
+add_action('wp_footer', function () {
     ?>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -228,12 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
     </script>
     <?php
-}
+  
+});
+
 
 // Convert gravity form headings to h2
 // Cascading function that uses ally-gh2 as the selector
 
-function convert_gsection_titles_in_ally_gh2() {
+
+add_action('wp_footer', function () {
     ?>
     <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
@@ -251,13 +252,13 @@ function convert_gsection_titles_in_ally_gh2() {
     });
     </script>
     <?php
-}
 
-add_action('wp_footer', 'convert_gsection_titles_in_ally_gh2');
+});
 
 // Add list semantics to galleries
 // Cascading function that uses ally-gls as the selector
-function wrap_gallery_items_in_listitem_divs() {
+add_action('wp_footer', function () {
+
     ?>
     <script>
     function createInvisibleAlert() {
@@ -437,10 +438,9 @@ function wrap_gallery_items_in_listitem_divs() {
 })
     </script>
     <?php
-}
-add_action('wp_footer', 'wrap_gallery_items_in_listitem_divs');
+});
 
-function my_custom_styles() {
+add_action('wp_enqueue_scripts', function() {
     wp_register_style('my-accessibility', false); 
     wp_enqueue_style('my-accessibility');
     wp_add_inline_style('my-accessibility', '
@@ -458,13 +458,12 @@ function my_custom_styles() {
           color: #000;
         }
     ');
-}
-add_action('wp_enqueue_scripts', 'my_custom_styles');
+});
 
 // Thumbnail accessibility
 // Cascading function that uses ally-tl as the selector
-function thumbnailAccessibility() {
-    ?>
+add_action('wp_footer', function() {
+  ?>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 			const ALLY_THUMBNAIL_CLASS_ID = ".ally-tl";
@@ -508,12 +507,12 @@ function thumbnailAccessibility() {
         });
     </script>
     <?php
-}
-add_action('wp_footer', 'thumbnailAccessibility');
+});
 
 //Add list semantics to visual lists
 //Fountain function that uses ally-ls as the selector; At least two elements in the list must have the selector. 
-function add_roles_and_classes_for_accessibility() {
+
+add_action('wp_footer', function() {
     ?>
     <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
@@ -605,14 +604,13 @@ function add_roles_and_classes_for_accessibility() {
     });
     </script>
     <?php
-}
-
-add_action('wp_footer', 'add_roles_and_classes_for_accessibility');
+});
 
 
 //Add list semantics too accordions
 //Cascading function that uses ally-als as the selector
-function wrap_accordion_items_in_listroles() {
+
+add_action('wp_footer', function() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -628,12 +626,12 @@ function wrap_accordion_items_in_listroles() {
     });
     </script>
     <?php
-}
-add_action('wp_footer', 'wrap_accordion_items_in_listroles');
+});
 
 //Slideshow Play Pause Button that contains 'elementor-main-swiper'(IMPORTANT)
-function custom_swiper_slider_controls_script() {
-    ?>
+
+add_action('wp_footer', function() {
+ ?>
     <script>
     // Wait for the DOM content to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -722,14 +720,13 @@ function custom_swiper_slider_controls_script() {
     });
     </script>
     <?php
-}
-
-add_action('wp_footer', 'custom_swiper_slider_controls_script');
+});
 
 // Thumbnail accessibility
 // Add ally-hero-slider-container class to the container of the hero slider in order to work
-function hero_slider_accessible() {
-	?>
+
+add_action('wp_footer', function() {
+?>
 		<script type="text/javascript">
 			const ALLY_HERO_SLIDER_CONTAINER = ".ally-hero-slider-container";
 			document.addEventListener('DOMContentLoaded', () => {
@@ -790,8 +787,7 @@ function hero_slider_accessible() {
 			});
 		</script>
 	<?php
-}
-add_action('wp_footer', 'hero_slider_accessible');
+});
 
 add_action('wp_footer', function () {
     ?>
@@ -1099,7 +1095,7 @@ add_action('wp_footer', function () {
     <script>
         (function() {
             const fields = document.querySelectorAll(
-                '.gform_wrapper form input[type="checkbox"], .gform_wrapper form input[type="radio"]'
+                'form input[type="checkbox"], form input[type="radio"]'
             );
             fields.forEach(input => {
 				input.addEventListener('keydown', function(e) {
@@ -1152,7 +1148,8 @@ add_action('wp_footer', function () {
 	<?php
 });
 
-function add_signature() {
+//Add signature fix
+add_action('wp_footer', function () {
     ?>
     <script>
 		function enhanceSignatureCanvas(root = document) {
@@ -1191,11 +1188,11 @@ function add_signature() {
 		});
     </script>
     <?php
-}
-add_action('wp_footer', 'add_signature');
+});
 
-function add_label_to_captcha() {
-    ?>
+//Add label to captcha
+add_action('wp_footer', function() {
+      ?>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
 	  const observer = new MutationObserver(() => {
@@ -1224,10 +1221,10 @@ function add_label_to_captcha() {
     });
     </script>
     <?php
-}
-add_action('wp_footer', 'add_label_to_captcha');
+});
 
-function add_extra_description_to_firetrucks_info_btn() {
+//add_extra_description_to_firetrucks_info_btn
+add_action('wp_footer', function() {
     ?>
     <script>
 	  document.querySelectorAll('.ally-add-extra-desc-to-btns').forEach(container => {
@@ -1242,5 +1239,4 @@ function add_extra_description_to_firetrucks_info_btn() {
 	  });
     </script>
     <?php
-}
-add_action('wp_footer', 'add_extra_description_to_firetrucks_info_btn');
+});
