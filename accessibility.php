@@ -168,6 +168,10 @@ add_action('wp_footer', function () {
 });
 
 //.ally-accordion is required as the parent
+//It needs this css to the parent
+//details[open] > .e-con {
+//    display: flex !important;
+//}
 add_action('wp_footer', function () {
     ?>
     <script>
