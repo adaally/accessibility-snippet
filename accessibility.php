@@ -1225,38 +1225,51 @@ add_action('wp_head', function () {
 
     <script>
 
-      document.addEventListener('DOMContentLoaded', function () {
-
-		function addAsteriskToRequiredAddressFields() {
-			//Look for gravity grouped items
-		  const fields = document.querySelectorAll(
+		function addAsteriskToRequiredAddressFields(root = document) {
+		  const fields = root.querySelectorAll(
 			'.ginput_container_address input, .ginput_container_address select, .ginput_complex input'
 		  );
-			
+
 		  fields.forEach(field => {
 			if (field.getAttribute('aria-required') !== 'true') return;
 
-			// Find the closest container that holds the label
 			const wrapper = field.parentElement;
 			if (!wrapper) return;
 
 			const label = wrapper.querySelector('label');
 			if (!label) return;
 
-			// Avoid duplicating the asterisk
 			if (label.querySelector('.gfield_required')) return;
 
 			const asterisk = document.createElement('span');
 			asterisk.textContent = '*';
-			  asterisk.style.paddingLeft = '5px'
+			asterisk.style.paddingLeft = '5px';
 			asterisk.className = 'gfield_required';
 
 			label.appendChild(asterisk);
 		  });
 		}
-		addAsteriskToRequiredAddressFields();
 
-	  })
+		function observeGravityForms() {
+		  const form = document.querySelector('.elementor-widget-eael-gravity-form form');
+			if(!form) return
+			addAsteriskToRequiredAddressFields(form);
+
+			const observer = new MutationObserver(() => {
+				const newForm = document.querySelector('.elementor-widget-eael-gravity-form form:not([applied])');
+				if(!newForm) return
+				newForm.setAttribute('applied', 'true');
+				addAsteriskToRequiredAddressFields(newForm);
+			});
+
+			observer.observe(document.body, {
+			  childList: true,
+			  subtree: true
+			});
+		}
+
+		document.addEventListener('DOMContentLoaded', observeGravityForms);
+
     </script>
 
     <?php
