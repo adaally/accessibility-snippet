@@ -172,6 +172,30 @@ add_action('wp_footer', function () {
 //details[open] > .e-con {
 //    display: flex !important;
 //}
+//This part is to change the background color of the accordion 
+//.contact-button a {
+//  background-color: #CF403C;
+//  border: none;
+//  color: #ffffff;
+//  margin: 15px 45px;
+//  padding: 5px 15px;
+//  text-align: center;
+//  text-decoration: none;
+//  display: inline-block;
+//  font-size: 14px;
+//  letter-spacing: 0.5px;
+//  border-radius: 5px;
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//}
+//.contact-button a:hover { 
+//  background-color: #191919;
+//}
+
+//summary {
+//    background: #fff;
+//}
 add_action('wp_footer', function () {
     ?>
     <script>
