@@ -1332,3 +1332,63 @@ add_action('wp_head', function () {
     <?php
 
 });
+//Focus title of current step in step forms
+add_action('wp_footer', function () {
+	?>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				function focusFirstFieldIn(form) {
+					
+				  const firstField = form.querySelector('.gf_progressbar_title');
+				
+					console.log(firstField,' form called')
+				  if (firstField) {
+					  firstField.tabIndex = '-1'
+					firstField.focus();
+				  }
+				}
+
+				function observeFormsAndFocus() {
+				  const handledForms = new WeakSet();
+					const form = document.querySelector('.ally-form-focus-first form');
+					if(form) {
+						focusFirstFieldIn(form);
+					}
+
+				  const observer = new MutationObserver(mutations => {
+					for (const mutation of mutations) {
+					  for (const node of mutation.addedNodes) {
+						if (!(node instanceof HTMLElement)) continue;
+
+						// Case 1: the node itself is the form
+						if (node.matches?.('.ally-form-focus-first form')) {
+						  if (!handledForms.has(node)) {
+							handledForms.add(node);
+							focusFirstFieldIn(node);
+						  }
+						}
+
+						// Case 2: form is inside the added subtree
+						const forms = node.querySelectorAll?.('.ally-form-focus-first form');
+						forms?.forEach(form => {
+						  if (!handledForms.has(form)) {
+							handledForms.add(form);
+							focusFirstFieldIn(form);
+						  }
+						});
+					  }
+					}
+				  });
+
+				  observer.observe(document.body, {
+					childList: true,
+					subtree: true
+				  });
+				}
+
+				observeFormsAndFocus();
+
+			})
+		</script>
+	<?php
+});
