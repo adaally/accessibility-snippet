@@ -1303,3 +1303,32 @@ add_action('wp_head', function () {
     <?php
 
 });
+
+//Remove elementor-icon-list-items list semantics
+add_action('wp_head', function () {
+
+    ?>
+
+    <script>
+		document.addEventListener('DOMContentLoaded', function () {
+				  document
+	    .querySelectorAll('.ally-remove-list-semantics')
+	    .forEach(container => {
+	      container
+	        .querySelectorAll('ul.elementor-icon-list-items')
+	        .forEach(ul => {
+	          ul.setAttribute('role', 'none');
+	
+	          ul.querySelectorAll('li').forEach(li => {
+	            li.setAttribute('role', 'none');
+	          });
+	        });
+	    });
+		})
+
+
+    </script>
+
+    <?php
+
+});
