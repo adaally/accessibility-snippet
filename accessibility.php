@@ -1392,3 +1392,45 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+// Hide all <br> from screen readers, including dynamically added ones
+add_action('wp_footer', function () {
+?>
+<script>
+(function () {
+  function hideBRs(root = document) {
+    root.querySelectorAll('br:not([aria-hidden])')
+      .forEach(br => br.setAttribute('aria-hidden', 'true'));
+  }
+
+  // Initial pass
+  document.addEventListener('DOMContentLoaded', () => {
+    hideBRs();
+
+    // Observe future DOM changes
+    const observer = new MutationObserver(mutations => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== 1) continue;
+
+          // If the node itself is <br>
+          if (node.tagName === 'BR') {
+            node.setAttribute('aria-hidden', 'true');
+          }
+
+          // If it contains <br> inside
+          hideBRs(node);
+        }
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  });
+})();
+</script>
+<?php
+});
+
