@@ -1433,4 +1433,16 @@ add_action('wp_footer', function () {
 </script>
 <?php
 });
-
+//Add role main
+add_action('wp_footer', function () {
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const main = document.querySelector('main');
+  if (main) return;
+	const mainAttr = document.querySelector('#content');
+  mainAttr.setAttribute('role', 'main');
+});
+</script>
+<?php
+});
