@@ -1446,3 +1446,187 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <?php
 });
+
+
+add_action('wp_head', function () {
+
+    ?>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    (function () {
+      /* ==========================================================
+			 1. Add list semantics to gallery grid
+		  ========================================================== */
+      function applyGalleryListSemantics() {
+        document.querySelectorAll('.ally-gallery-archive .uael-img-gallery-wrap').forEach((list) => {
+          list.setAttribute('role', 'list');
+
+          list.querySelectorAll('.uael-grid-item').forEach((item) => {
+            item.setAttribute('role', 'listitem');
+            item.removeAttribute('aria-hidden');
+            const obsItem = new MutationObserver(() => {
+              if (item.getAttribute('aria-hidden')) {
+                item.removeAttribute('aria-hidden');
+                obsItem.disconnect();
+              }
+            });
+            obsItem.observe(item, {
+              attributes: true,
+              attributesFilter: ['class'],
+            });
+          });
+        });
+      }
+
+      /* ==========================================================
+			 2. Focus trap utility
+		  ========================================================== */
+	function trapFocus(container) {
+	  const selectors = `
+		a[href],
+		button:not([disabled]),
+		input,
+		select,
+		textarea,
+		[tabindex]:not([tabindex="-1"])
+	  `;
+
+	  function handleKeydown(e) {
+		if (e.key !== 'Tab') return;
+
+		const focusable = [...container.querySelectorAll(selectors)]
+		  .filter(el => el.offsetParent !== null); // visible only
+
+		if (!focusable.length) return;
+
+		const first = focusable[0];
+		const last = focusable[focusable.length - 1];
+		const active = document.activeElement;
+
+		// Predict where the browser will go next
+		const goingForward = !e.shiftKey;
+
+		if (goingForward && active === last) {
+		  e.preventDefault();
+		  first.focus();
+		  return;
+		}
+
+		if (!goingForward && active === first) {
+		  e.preventDefault();
+		  last.focus();
+		  return;
+		}
+
+		// 🔥 The Fancybox fix
+		// If focus is about to leave the modal, pull it back
+		setTimeout(() => {
+		  if (!container.contains(document.activeElement)) {
+			first.focus();
+		  }
+		}, 0);
+	  }
+
+	  document.addEventListener('keydown', handleKeydown);
+	  return () => document.removeEventListener('keydown', handleKeydown);
+	}
+    
+      /* ==========================================================
+			 3. Fancybox open/close observer
+		  ========================================================== */
+      let lastFocusedGalleryLink = null;
+      let removeTrap = null;
+
+      function observeFancybox() {
+        const observer = new MutationObserver(() => {
+          const fancybox = document.querySelector('.fancybox-container');
+
+          // OPEN
+          if (fancybox && !fancybox.dataset.trapped) {
+            fancybox.setAttribute('role', 'dialog');
+            fancybox.setAttribute('aria-modal', 'true');
+            fancybox.setAttribute('aria-label', 'Gallery');
+
+            fancybox.querySelectorAll('.fancybox-button').forEach((btn) => {
+              btn.setAttribute('aria-label', btn.getAttribute('title') + ' slide');
+            });
+
+            fancybox
+              .querySelectorAll('.fancybox-button:not(.fancybox-button--arrow_right):not(.fancybox-button--arrow_left)')
+              .forEach((btn) => {
+                const title = btn.getAttribute('title');
+                if (title) {
+                  btn.setAttribute('aria-label', title);
+                }
+              });
+
+            fancybox.dataset.trapped = 'true';
+            setTimeout(() => {
+				const text = fancybox.querySelector('.fancybox-caption');
+				if(text) {
+				  text.setAttribute('aria-live','polite');
+				  const currentImg = fancybox.querySelector('.fancybox-slide--current img');
+					currentImg.setAttribute('alt', text.textContent);
+					currentImg.tabIndex = 0;
+					currentImg.focus();
+					removeTrap = trapFocus(fancybox);
+					setTimeout(() => {
+						currentImg.tabIndex = -1;
+					},50);
+
+				}
+            }, 800);
+          }
+
+          // CLOSE
+          setTimeout(() => {
+            if (!fancybox && lastFocusedGalleryLink) {
+              lastFocusedGalleryLink.focus();
+              lastFocusedGalleryLink = null;
+            }
+          }, 500);
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      }
+
+      /* ==========================================================
+			 4. Remember opener + re-trap after navigation (700ms)
+		  ========================================================== */
+      function setupGalleryInteractions() {
+        document.addEventListener('click', (e) => {
+          const opener = e.target.closest('.ally-gallery-archive .uael-grid-img');
+          if (opener) {
+            lastFocusedGalleryLink = opener;
+          }
+
+          if (e.target.closest('.fancybox-button--arrow_left') || e.target.closest('.fancybox-button--arrow_right')) {
+            setTimeout(() => {
+              const fancybox = document.querySelector('.fancybox-container');
+              if (fancybox) {
+                removeTrap?.();
+                removeTrap = trapFocus(fancybox);
+              }
+            }, 700);
+          }
+        });
+      }
+
+      /* ==========================================================
+			 5. Init
+		  ========================================================== */
+      applyGalleryListSemantics();
+      observeFancybox();
+      setupGalleryInteractions();
+    })();
+  });
+</script>
+
+
+    <?php
+
+});
