@@ -201,7 +201,7 @@ add_action('wp_footer', function () {
     <script>
 document.addEventListener('DOMContentLoaded', () => {
 	  document.querySelectorAll('.ally-accordion .e-n-accordion').forEach(acc => {
-
+	acc.removeAttribute('aria-label');
 	acc.querySelectorAll('details').forEach(item => {
 		item.querySelectorAll('[role="region"]').forEach(element => {
 			element.removeAttribute('role');
