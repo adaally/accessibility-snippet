@@ -1763,3 +1763,18 @@ add_action('wp_head', function () {
     <?php
 
 });
+
+//Remove aria-labelledby from footer links
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        (function() {
+			document.addEventListener('DOMContentLoaded', () => {
+				const element = document.querySelector('.remove-aria-labelledby .e-n-menu-wrapper');
+				if(!element) return;
+				element.removeAttribute('aria-labelledby');
+			});
+        })();
+    </script>
+    <?php
+});
