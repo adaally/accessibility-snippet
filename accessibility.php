@@ -1447,7 +1447,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php
 });
 
-
+//New Gallery archive fix
 add_action('wp_head', function () {
 
     ?>
@@ -1626,6 +1626,139 @@ add_action('wp_head', function () {
   });
 </script>
 
+
+    <?php
+
+});
+
+//Dropdown Gallery archiv fix
+add_action('wp_head', function () {
+
+    ?>
+
+    <script>
+		document.addEventListener('DOMContentLoaded', function () {
+			function makeFilterDropdownAccessible() {
+			  const wrapper = document.querySelector('.uael-filters-dropdown');
+			  if (!wrapper) return;
+
+			  const button = wrapper.querySelector('.uael-filters-dropdown-button');
+			  const list = wrapper.querySelector('.uael-filters-dropdown-list');
+			  const items = [...list.querySelectorAll('.uael-filters-dropdown-item')];
+
+			  // Button semantics
+			  button.setAttribute('role', 'button');
+			  button.setAttribute('tabindex', '0');
+			  button.setAttribute('aria-haspopup', 'listbox');
+			  button.setAttribute('aria-expanded', 'false');
+			  button.setAttribute('aria-controls', 'uael-filter-list');
+				
+				button.addEventListener('keydown', (e) => {
+					if(e.key === 'Enter') {
+						e.preventDefault();
+						button.click();
+					}
+				})
+
+			  // List semantics
+			  list.setAttribute('role', 'listbox');
+			  list.id = 'uael-filter-list';
+			  list.hidden = true;
+
+			  // Item semantics
+			  items.forEach((item, index) => {
+				item.setAttribute('role', 'option');
+				item.setAttribute('tabindex', '-1');
+				item.id = `uael-filter-option-${index}`;
+
+				if (item.classList.contains('uael-current')) {
+				  item.setAttribute('aria-selected', 'true');
+				  button.textContent = item.textContent;
+				}
+			  });
+
+
+				
+		function openList() {
+			list.hidden = false;
+			button.setAttribute('aria-expanded', 'true');
+
+			const selected =
+			  list.querySelector('[aria-selected="true"]') || items[0];
+
+			selected.focus();
+		  }
+
+		  function closeList() {
+			list.hidden = true;
+			button.setAttribute('aria-expanded', 'false');
+			  document.body.click();
+			button.focus();
+		
+		  }
+			
+		button.addEventListener('click', () => {
+			const expanded = button.getAttribute('aria-expanded') === 'true';
+			expanded ? closeList() : openList();
+		  });
+
+		  button.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+			  e.preventDefault();
+			  openList();
+			}
+			if (e.key === 'ArrowDown') {
+			  e.preventDefault();
+			  openList();
+			}
+		  });
+			
+			  list.addEventListener('keydown', (e) => {
+			const currentIndex = items.indexOf(document.activeElement);
+
+			if (e.key === 'ArrowDown') {
+			  e.preventDefault();
+			  items[(currentIndex + 1) % items.length].focus();
+			}
+
+			if (e.key === 'ArrowUp') {
+			  e.preventDefault();
+			  items[(currentIndex - 1 + items.length) % items.length].focus();
+			}
+
+			if (e.key === 'Enter' || e.key === ' ') {
+			  e.preventDefault();
+			  document.activeElement.click();
+			}
+
+			if (e.key === 'Escape') {
+			  e.preventDefault();
+			  closeList();
+			}
+		  });
+
+
+			  items.forEach(item => {
+			item.addEventListener('click', () => {
+			  items.forEach(i => i.removeAttribute('aria-selected'));
+			  item.setAttribute('aria-selected', 'true');
+
+			  button.textContent = item.textContent;
+			  closeList();
+			});
+		  });
+
+		  // Click outside closes
+		  document.addEventListener('click', (e) => {
+			if (!wrapper.contains(e.target)) {
+			  closeList();
+			}
+		  });
+		}
+
+	makeFilterDropdownAccessible();
+								  		})
+    </script>
 
     <?php
 
