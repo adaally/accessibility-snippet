@@ -949,41 +949,50 @@ const ALLY_LIST_EMPLOYMENT = ".ally-list-employment";
 add_action('wp_footer', function () {
     ?>
     <script>
-		const ALLY_H2_CLASS = ".change_to_h2";
-			document.addEventListener('DOMContentLoaded', () => {
-				document.querySelectorAll(ALLY_H2_CLASS + ' h3').forEach((h3Element) => {
-					h3Element.setAttribute('aria-level', '2');
-				});
-				const form = document.querySelector('.ally-form form');
-				if (form) {
-				  const obs = new MutationObserver((mutations) => {
-					for (const m of mutations) {
-					  if (m.type === 'attributes') {
-						let intervalId;
+		const ALLY_SELECTOR = '.change_to_h2';
 
-						const timeoutId = setTimeout(() => {
-						  clearInterval(intervalId);
-						}, 5000);
+		function convertH3ToH2(root = document) {
+		  root.querySelectorAll(`${ALLY_SELECTOR} h3`).forEach(h3 => {
 
-						intervalId = setInterval(() => {
-						  const h3s = document.querySelectorAll('form h3');
-						  if (h3s.length > 0 && h3s[0].getAttribute('aria-level') === null) {
-							h3s.forEach(h3 => {
-							  h3.setAttribute('aria-level', '2');
-							});
-							clearInterval(intervalId);
-							clearTimeout(timeoutId);
-						  }
-						}, 200);
-					  }
-					}
-				  });
-				  
-				  obs.observe(form, {
-					attributes: true
-				  });
-				}
+			// Create new h2
+			const h2 = document.createElement('h2');
+
+			// Copy content
+			h2.innerHTML = h3.innerHTML;
+
+			// Copy attributes (optional)
+			[...h3.attributes].forEach(attr => {
+			  if (attr.name !== 'aria-level') {
+				h2.setAttribute(attr.name, attr.value);
+			  }
 			});
+
+			// Replace node
+			h3.replaceWith(h2);
+		  });
+		}
+
+		document.addEventListener('DOMContentLoaded', () => {
+
+		  // Initial conversion
+		  convertH3ToH2();
+
+		  // Observe DOM changes
+		  const observer = new MutationObserver(mutations => {
+			for (const mutation of mutations) {
+			  if (mutation.addedNodes.length > 0) {
+				convertH3ToH2(mutation.target);
+			  }
+			}
+		  });
+
+		  observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		  });
+
+		});
+
 		</script>
 	<?php
 });
