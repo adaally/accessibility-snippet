@@ -1112,8 +1112,17 @@ add_action('wp_footer', function () {
 			if (e.key !== 'Enter') return;
 
 			const input = e.target.closest(
-			  'form input[type="checkbox"],form input[type="radio"], form select'
+			  'form input[type="checkbox"],form input[type="radio"], form select, form input[type="submit"]'
 			);
+			  
+			  
+			 const justInput = e.target.closest(
+			  'form input'
+			);
+			  
+			  if(justInput) {
+				  e.preventDefault();
+			  }
 
 			if (!input) return;
 
