@@ -1796,3 +1796,22 @@ add_action('wp_footer', function () {
     </script>
     <?php
 });
+//Needs ally-extra-description in the parent of the items
+//ally-heading for the header
+//ally-button for the link/button
+add_action('wp_footer', function() {
+    ?>
+    <script>
+	  document.querySelectorAll('.ally-extra-description').forEach(container => {
+			container.querySelectorAll('h3.elementor-heading-title, .ally-heading .elementor-heading-title').forEach(title => {
+				title.id = 'title_id_' + Math.random().toString(36).substring(2, 6 + 2);
+				const parentItem = title.closest('.has_ae_slider');
+				if(!parentItem)return;
+				
+				const btn = parentItem.querySelector('.elementor-button, .ally-btn a');
+				btn.setAttribute('aria-describedby', title.id);
+			})
+	  });
+    </script>
+    <?php
+});
