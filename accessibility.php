@@ -167,30 +167,13 @@ add_action('wp_footer', function () {
 
 });
 
-//.ally-accordion is required as the parent
-//It needs this css to the parent
+// It requires "ally-accordion" class in the parent container of the accordion
+// (IMPORTANT) If there are multiple accordions in the page, the class can be added to the parent of all accordions
+// It restructures Elementor Accordion to remove arrow key navigation
+// It also removes the aria-label from the accordion and the role="region" and aria-labelledby from the content
+//It needs this css in the parent
 //details[open] .e-con {
 //    display: flex !important;
-//}
-//This part is to change the background color of the accordion 
-//.contact-button a {
-//  background-color: #CF403C;
-//  border: none;
-//  color: #ffffff;
-//  margin: 15px 45px;
-//  padding: 5px 15px;
-//  text-align: center;
-//  text-decoration: none;
-//  display: inline-block;
-//  font-size: 14px;
-//  letter-spacing: 0.5px;
-//  border-radius: 5px;
-//  display: flex;
-//  justify-content: center;
-//  align-items: center;
-//}
-//.contact-button a:hover { 
-//  background-color: #191919;
 //}
 
 //summary {
@@ -258,33 +241,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Convert gravity form headings to h2
-// Cascading function that uses ally-gh2 as the selector
-
-
-add_action('wp_footer', function () {
+// It requires "ally-als" class in the parent container of the accordion
+// It add list semantics to the accordion, adding role list to the container of the accordion and role listitem to the direct children that contains an accordion item
+add_action('wp_footer', function() {
     ?>
-    <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function() {
-        // Find all h3 elements with class "gsection_title" inside any ancestor with class "ally-gh2"
-        const elements = document.querySelectorAll('.ally-gh2 .gsection_title');
-
-        elements.forEach(el => {
-            if (el.tagName.toLowerCase() === 'h3') {
-                const newEl = document.createElement('h2');
-                newEl.className = el.className;
-                newEl.innerHTML = el.innerHTML;
-                el.replaceWith(newEl);
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.ally-als').forEach(function (accordionWrapper) {
+            const accordion = accordionWrapper.querySelector('.e-n-accordion');
+            if (accordion) {
+                accordion.setAttribute('role', 'list');
+                Array.from(accordion.children).forEach(function (child) {
+                    child.setAttribute('role', 'listitem');
+                });
             }
         });
     });
     </script>
     <?php
-
 });
 
-// Add list semantics to galleries
-// Cascading function that uses ally-gls as the selector
+
+
+// Add list semantics to galleries, it requires the class "ally-gls" in the parent container of the gallery. 
+// It also adds aria-label to the links and alt text to the images in the modal, and an invisible alert with the current image number and total images when the modal is open.
 add_action('wp_footer', function () {
 
     ?>
@@ -468,6 +448,7 @@ add_action('wp_footer', function () {
     <?php
 });
 
+// Add visually hidden class to the web css so we can use it in components
 add_action('wp_enqueue_scripts', function() {
     wp_register_style('my-accessibility', false); 
     wp_enqueue_style('my-accessibility');
@@ -489,7 +470,9 @@ add_action('wp_enqueue_scripts', function() {
 });
 
 // Thumbnail accessibility
-// Cascading function that uses ally-tl as the selector
+// Update the link label that opens an image modal and update the alt text of the image in the modal
+// It requires "ally-tl" class in the item container
+// It also requires "ally-modal-listener" class in the parent of this item to add focus trap
 add_action('wp_footer', function() {
   ?>
     <script>
@@ -524,7 +507,6 @@ add_action('wp_footer', function() {
 				  });
 				  
 				  const activeImg = dialog.querySelector(".swiper-slide-active img");
-				  console.log(activeImg)
 				  if(activeImg) {
 					activeImg.setAttribute("tabindex", "-1");
 				  	activeImg.focus();
@@ -537,9 +519,79 @@ add_action('wp_footer', function() {
     <?php
 });
 
-//Add list semantics to visual lists
-//Fountain function that uses ally-ls as the selector; At least two elements in the list must have the selector. 
+// It requires "ally-modal-listener" class in the parent container of the items that open modals
+// (IMPORTANT) If there are multiple items with "ally-tl" the "ally-modal-listener" class should be in the common parent of all these items
+// It adds focus back to the opener when the modal is closed, either by the close button or by the escape key
+add_action('wp_footer', function () {
+    ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
+  let modalFound = false;
+
+  function handleEscape(opener) {
+    const onKey = (e) => {
+      const modal = document.querySelector(".dialog-widget-content");
+      
+      if (!modal) {
+        document.removeEventListener("keydown", onKey);
+        return;
+      }
+
+      if (e.key === "Escape") {
+        document.removeEventListener("keydown", onKey);
+        setTimeout(() => opener.focus(), 700);
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+  }
+
+  function attachCloseEvents(closeBtn, opener) {
+    const returnFocus = () => setTimeout(() => opener.focus(), 500);
+
+    closeBtn.addEventListener('click', returnFocus);
+
+    closeBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') returnFocus();
+    });
+
+    handleEscape(opener);
+  }
+
+  function observeModal(opener) {
+    const observer = new MutationObserver(() => {
+      const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
+      if (!closeBtn) return;
+
+      modalFound = true;
+      attachCloseEvents(closeBtn, opener);
+      observer.disconnect();
+    });
+
+    observer.observe(document.body, { subtree: true, childList: true });
+  }
+
+  document.querySelectorAll('.ally-modal-listener a').forEach(opener => {
+    opener.addEventListener('click', () => {
+      if (modalFound) {
+        const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
+        if (closeBtn) attachCloseEvents(closeBtn, opener);
+      } else {
+        observeModal(opener);
+      }
+    });
+  });
+
+});
+</script>
+    <?php
+});
+
+
+// It requires "ally-ts" class in at least 2 elements inside a container, 
+// then it adds role list to the common ancestor and role listitem to the direct children that contains an element with the selector,
+// and aria-hidden to the ones that don't contain any.
 add_action('wp_footer', function() {
     ?>
     <script type="text/javascript">
@@ -634,30 +686,8 @@ add_action('wp_footer', function() {
     <?php
 });
 
-
-//Add list semantics too accordions
-//Cascading function that uses ally-als as the selector
-
-add_action('wp_footer', function() {
-    ?>
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.ally-als').forEach(function (accordionWrapper) {
-            const accordion = accordionWrapper.querySelector('.e-n-accordion');
-            if (accordion) {
-                accordion.setAttribute('role', 'list');
-                Array.from(accordion.children).forEach(function (child) {
-                    child.setAttribute('role', 'listitem');
-                });
-            }
-        });
-    });
-    </script>
-    <?php
-});
-
-//Slideshow Play Pause Button that contains 'elementor-main-swiper'(IMPORTANT)
-
+// It requires "ally-hero-slider" class in the parent container of the hero slider
+// It adds a button to pause/resume the autoplay of the slider
 add_action('wp_footer', function() {
  ?>
     <script>
@@ -667,7 +697,7 @@ add_action('wp_footer', function() {
         // Create a MutationObserver to watch for changes in the DOM
         const observer = new MutationObserver(function(mutations, obs) {
             // Look for the swiper wrapper element
-            const swiperWrapper = document.querySelector('.elementor-main-swiper .swiper-wrapper');
+            const swiperWrapper = document.querySelector('.ally-hero-slider .elementor-main-swiper .swiper-wrapper');
             
             // If the swiper wrapper is found, set up slider controls and stop observing
             if (swiperWrapper) {
@@ -750,9 +780,9 @@ add_action('wp_footer', function() {
     <?php
 });
 
-// Thumbnail accessibility
-// Add ally-hero-slider-container class to the container of the hero slider in order to work
 
+// It requires "ally-hero-slider-container" class in the parent container of the hero slider
+// It adds aria-hidden to the non active slides and aria-label to the pagination bullets with the format "Slide X of Y", and alt text to the images with class "swiper-slide-bg"
 add_action('wp_footer', function() {
 ?>
 		<script type="text/javascript">
@@ -817,6 +847,9 @@ add_action('wp_footer', function() {
 	<?php
 });
 
+//It requires "ally-list-pdf" class in the parent container of the list of pdfs
+// It adds list semantics to the list, adding role list to the container and role listitem to the direct children that contains a pdf link, 
+// and aria-describedby to the link with the id of the titles in the section.
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -853,99 +886,9 @@ add_action('wp_footer', function () {
     <?php
 });
 
-
-add_action('wp_footer', function () {
-    ?>
-    <script>
-        (function() {
-				const ALLY_NESTED_LIST = ".ally-nested-list";
-			document.addEventListener('DOMContentLoaded', () => {
-				let globalList = null;
-				document.querySelectorAll(ALLY_NESTED_LIST + ' section').forEach((section, index) => {
-					if(index === 0) {
-						globalList = section.querySelector('ul');
-						
-						section.querySelectorAll('.elementor-column').forEach((column, index) => {
-							if(index !== 0) {
-								column.remove();
-							}
-						})
-					} else {
-						section.querySelectorAll('li').forEach(item => globalList.appendChild(item));
-						section.remove();
-					}
-					
-				});
-
-			});
-        })();
-    </script>
-    <?php
-});
-
-add_action('wp_footer', function () {
-    ?>
-    <script>
-        (function() {
-const ALLY_LIST_EMPLOYMENT = ".ally-list-employment";
-			document.addEventListener('DOMContentLoaded', () => {
-				document.querySelectorAll(ALLY_LIST_EMPLOYMENT + ' article').forEach((item, index) => {
-					if(index === 0){
-						const parent = item.parentNode;
-						parent.setAttribute('role', 'list');
-					}
-					item.setAttribute('role', 'listitem');
-					
-					
-					const ulList = item.querySelector('ul');
-					if(ulList) {
-						ulList.setAttribute('role', 'none');
-						ulList.querySelectorAll('li').forEach(item => item.setAttribute('role', 'none'));
-					}
-					
-					const h4Element = item.querySelector('h4');
-					if(h4Element) {
-						h4Element.setAttribute('role', 'none');
-					}
-					
-					const links = item.querySelectorAll('a');
-					if(links.length > 1) {
-						links[0].id = 'link_employment_' + index;
-						links[links.length - 1].setAttribute('aria-describedby', links[0].id);
-						replaceLinkWithSpan(links[0], links[links.length - 1]);
-					}
-					
-				});
-				
-				function copyAttributes(source, target) {
-					if (!source || !target) return;
-
-					for (let attr of source.attributes) {
-						target.setAttribute(attr.name, attr.value);
-					}
-				}
-				
-				 function replaceLinkWithSpan(link, secondLink) {
-					const newSpan = document.createElement('span');
-					copyAttributes(link, newSpan);
-					newSpan.removeAttribute('href');
-					newSpan.removeAttribute('target');
-					newSpan.style.cursor = 'pointer';
-					newSpan.innerHTML = link.innerHTML;
-					link.replaceWith(newSpan);
-					newSpan.addEventListener('click', () => {
-						secondLink.click();
-					});
-					return newSpan;
-				}
-
-			});
-        })();
-    </script>
-    <?php
-});
-
-	
+// It requires "change_to_h2" class in the parent container of the gravity form
+// (IMPORTANT) Use this only if it's skipping heading levels in the form, otherwise it can be ignored
+// It converts gravity form headings(inside the form) to h2s, by default are h3s
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -996,6 +939,9 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+// It requires "ally-tls" class in the parent container of the timeline widget
+// It adds list semantics to the timeline widget
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -1013,6 +959,9 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+// It automatically replaces the heading in the gravity form validation error with a div with the same content, 
+// to avoid improper heading levels
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -1035,75 +984,8 @@ add_action('wp_footer', function () {
 	<?php
 });
 
-//Button open modal focus back when modal closed
-//Class required on the container of images: ally-modal-listener
-add_action('wp_footer', function () {
-    ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  let modalFound = false;
-
-  function handleEscape(opener) {
-    const onKey = (e) => {
-      const modal = document.querySelector(".dialog-widget-content");
-      
-      if (!modal) {
-        document.removeEventListener("keydown", onKey);
-        return;
-      }
-
-      if (e.key === "Escape") {
-        document.removeEventListener("keydown", onKey);
-        setTimeout(() => opener.focus(), 700);
-      }
-    };
-
-    document.addEventListener("keydown", onKey);
-  }
-
-  function attachCloseEvents(closeBtn, opener) {
-    const returnFocus = () => setTimeout(() => opener.focus(), 500);
-
-    closeBtn.addEventListener('click', returnFocus);
-
-    closeBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') returnFocus();
-    });
-
-    handleEscape(opener);
-  }
-
-  function observeModal(opener) {
-    const observer = new MutationObserver(() => {
-      const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
-      if (!closeBtn) return;
-
-      modalFound = true;
-      attachCloseEvents(closeBtn, opener);
-      observer.disconnect();
-    });
-
-    observer.observe(document.body, { subtree: true, childList: true });
-  }
-
-  document.querySelectorAll('.ally-modal-listener a').forEach(opener => {
-    opener.addEventListener('click', () => {
-      if (modalFound) {
-        const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
-        if (closeBtn) attachCloseEvents(closeBtn, opener);
-      } else {
-        observeModal(opener);
-      }
-    });
-  });
-
-});
-</script>
-    <?php
-});
-
-//Gravity form prevent enter key
+// No class required, it is applied to all forms
+// It clicks the focused checkbox, radio, select or submit button when the user presses enter, to improve keyboard navigation in forms.
 add_action('wp_footer', function () {
 	?>
 		<script>
@@ -1135,43 +1017,8 @@ add_action('wp_footer', function () {
 });
 
 
-//Remove tabindex from link
-add_action('wp_footer', function () {
-    ?>
-    <script>
-		    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.remove-tabindex').forEach(function (wrapper) {
-            const link = wrapper.querySelector('a');
-            if (link) {
-                link.setAttribute('tabindex', '-1');
-            }
-        });
-    });
-		</script>
-	<?php
-});
-
-//Adding list semantics to accordions -> (ally-list-accordion) class to the parent
-add_action('wp_footer', function () {
-    ?>
-		<script>
-			document.addEventListener('DOMContentLoaded', () => {
-			  document.querySelectorAll('.ally-list-accordion').forEach(wrapper => {
-				const collection = wrapper.querySelector('.ae-post-collection');
-				if (!collection) return;
-
-				collection.setAttribute('role', 'list');
-
-				collection.querySelectorAll(':scope > article').forEach(article => {
-				  article.setAttribute('role', 'listitem');
-				});
-			  });
-			});
-		</script>
-	<?php
-});
-
-//Add signature fix
+// No class required
+// It adds accessibility attributes to the signature field in gravity forms, such as aria-roledescription and aria-description, and makes it focusable by keyboard.
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -1213,7 +1060,8 @@ add_action('wp_footer', function () {
     <?php
 });
 
-//Add label to captcha
+// No class required
+// It adds a label to the recaptcha textarea
 add_action('wp_footer', function() {
       ?>
     <script>
@@ -1246,25 +1094,10 @@ add_action('wp_footer', function() {
     <?php
 });
 
-//add_extra_description_to_firetrucks_info_btn
-add_action('wp_footer', function() {
-    ?>
-    <script>
-	  document.querySelectorAll('.ally-add-extra-desc-to-btns').forEach(container => {
-			container.querySelectorAll('.elementor-heading-title').forEach(title => {
-				title.id = 'title_id_' + Math.random().toString(36).substring(2, 6 + 2);
-				const parentItem = title.closest('.has_ae_slider');
-				if(!parentItem)return;
-				
-				const summary = parentItem.querySelector('summary');
-				summary.setAttribute('aria-describedby', title.id);
-			})
-	  });
-    </script>
-    <?php
-});
-
-//Add asterisks to required inputs in group of address
+// No class required
+// (IMPORTANT) Remove this method if is duplicating the required asterisk in the fields, otherwise it can be ignored
+// It adds an asterisk to the label of required fields in the group address field and group name field of gravity forms, 
+// since these fields don't have any visible indication that they are required
 add_action('wp_head', function () {
 
     ?>
@@ -1322,7 +1155,9 @@ add_action('wp_head', function () {
 
 });
 
-//Remove elementor-icon-list-items list semantics
+// It requires "ally-remove-list-semantics" class in the parent container
+// (IMPORTANT) Use only if the icon list shouldn't be a list like using the icon list for 1 item
+// It removes the list semantics of the icon list widget
 add_action('wp_head', function () {
 
     ?>
@@ -1350,6 +1185,7 @@ add_action('wp_head', function () {
     <?php
 
 });
+
 //Focus title of current step in step forms
 add_action('wp_footer', function () {
 	?>
@@ -1358,8 +1194,6 @@ add_action('wp_footer', function () {
 				function focusFirstFieldIn(form) {
 					
 				  const firstField = form.querySelector('.gf_progressbar_title');
-				
-					console.log(firstField,' form called')
 				  if (firstField) {
 					  firstField.tabIndex = '-1'
 					firstField.focus();
@@ -1465,7 +1299,9 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php
 });
 
-//New Gallery archive fix
+// Requires "ally-gallery-archive" class in the parent container
+// It adds role list to the gallery grid and role listitem to the items, 
+// and it traps the focus inside the fancybox modal when it's open, and returns focus to the opener when it's closed.
 add_action('wp_head', function () {
 
     ?>
@@ -1782,7 +1618,8 @@ add_action('wp_head', function () {
 
 });
 
-//Remove aria-labelledby from footer links
+// It requires "remove-aria-labelledby" class in the parent container of the menu widget
+// It removes the aria-labelledby attribute of the menu wrapper
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -1796,9 +1633,10 @@ add_action('wp_footer', function () {
     </script>
     <?php
 });
-//Needs ally-extra-description in the parent of the items
-//ally-heading for the header
-//ally-button for the link/button
+
+// It requires "ally-extra-description" class in the parent container of the item, 
+// "ally-heading" class in the heading of the item and 
+// "ally-button" class in the link/button of the item
 add_action('wp_footer', function() {
     ?>
     <script>
@@ -1816,7 +1654,9 @@ add_action('wp_footer', function() {
     <?php
 });
 
-//To add aria-label to any iframe we need to add ally-iframe_ as a prefix and after the _ it will split the text by underscore. Example: ally-iframe_facebook_photos here facebook photos will be the aria-label
+// It requires "ally-iframe_" class in the parent container of the iframe, 
+// and after the "_" it will split the text by underscore and use it as aria-label for the iframe, replacing underscores with spaces and capitalizing the first letter of each word.
+// Example: ally-iframe_facebook_photos here "facebook photos" will be the aria-label
 function label_iframe_with_class() {
     ?>
     <script>
