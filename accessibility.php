@@ -1815,3 +1815,41 @@ add_action('wp_footer', function() {
     </script>
     <?php
 });
+
+//To add aria-label to any iframe we need to add ally-iframe_ as a prefix and after the _ it will split the text by underscore. Example: ally-iframe_facebook_photos here facebook photos will be the aria-label
+function label_iframe_with_class() {
+    ?>
+    <script>
+		(function () {
+		  function labelAllyIframes() {
+			document.querySelectorAll('[class*="ally-iframe_"]').forEach(wrapper => {
+			  const cls = [...wrapper.classList].find(c => c.startsWith('ally-iframe_'));
+			  if (!cls) return;
+
+			  const iframe = wrapper.querySelector('iframe');
+			  if (!iframe || iframe.dataset.ariaLabeled) return;
+
+			  const rawName = cls.replace('ally-iframe_', '');
+			  const label = rawName
+				.replace(/_/g, ' ')
+				.replace(/\b\w/g, l => l.toUpperCase());
+
+			  iframe.setAttribute('aria-label', label);
+			  iframe.dataset.ariaLabeled = 'true';
+			});
+		  }
+
+		  // run once initially
+		  labelAllyIframes();
+
+		  // observe dynamic inserts
+		  const observer = new MutationObserver(labelAllyIframes);
+		  observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		  });
+		})();
+    </script>
+    <?php
+}
+add_action('wp_footer', 'label_iframe_with_class');
