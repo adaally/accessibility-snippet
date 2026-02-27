@@ -1002,7 +1002,7 @@ add_action('wp_footer', function () {
 			  'form input'
 			);
 			  
-			  if(justInput) {
+			  if(justInput && !justInput.classList.contains('gform_next_button') && !justInput.classList.contains('gform_previous_button')) {
 				  e.preventDefault();
 			  }
 
@@ -1694,19 +1694,3 @@ function label_iframe_with_class() {
 }
 add_action('wp_footer', 'label_iframe_with_class');
 
-//Submit button fixed on gravity forms
-add_action('wp_footer', function() {
-    ?>
-    <script>
-		document.addEventListener('keydown', (event) => {
-		  if (event.key !== 'Enter') return;
-
-		  const nextButton = document.querySelector(
-			'input.gform_next_button.gform-theme-button.button'
-		  );
-
-		  nextButton?.click();
-		});
-    </script>
-    <?php
-});
