@@ -1722,6 +1722,31 @@ function label_iframe_with_class() {
 }
 add_action('wp_footer', 'label_iframe_with_class');
 
+//It requires ally-list-post-collection class
+//It adds list semantics and remove inner unnecessary listitem
+add_action('wp_footer', function () {
+    ?>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+			  document.querySelectorAll('.ally-list-post-collection').forEach(wrapper => {
+				const collection = wrapper.querySelector('.ae-post-collection');
+				 wrapper.removeAttribute("role");
+				if (!collection) return;
+
+				collection.setAttribute('role', 'list');
+
+				collection.querySelectorAll(':scope > article').forEach(article => {
+				  article.setAttribute('role', 'listitem');
+					article.querySelectorAll('[role="listitem"]').forEach(item => {
+						item.removeAttribute('role');
+					});
+				});
+			  });
+			});
+		</script>
+	<?php
+});
+
 //ally-remove-title required class to remove title from elements with the title attribute
 add_action('wp_footer', function () {
     ?>
