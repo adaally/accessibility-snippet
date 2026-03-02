@@ -1019,6 +1019,7 @@ add_action('wp_footer', function () {
 
 // No class required
 // It adds accessibility attributes to the signature field in gravity forms, such as aria-roledescription and aria-description, and makes it focusable by keyboard.
+//Add signature fix
 add_action('wp_footer', function () {
     ?>
     <script>
@@ -1029,7 +1030,34 @@ add_action('wp_footer', function () {
 			  canvas.tabIndex = 0;
 			  canvas.setAttribute('aria-roledescription', 'Signature');
 			  canvas.setAttribute('aria-description', 'Sign your name');
+			  canvas.setAttribute('aria-label', 'Signature*');
 			  canvas.dataset.a11yEnhanced = 'true';
+				
+				
+			  const parent = canvas.parentElement;
+			  const next = parent.nextElementSibling;
+				if(next) {
+					
+					const imgBtn = next.querySelector('img');
+					if(imgBtn) {
+						next.setAttribute('role', 'button');
+						next.setAttribute('tabindex', '0');
+
+						next.addEventListener('click', () => {
+							imgBtn.click();
+						});
+
+						next.addEventListener('keydown', (e) => {
+							if(e.key === 'Enter') {
+								next.click();
+							}
+						});
+					}
+
+					
+					
+					
+				}
 			});
 		}
 
@@ -1694,3 +1722,15 @@ function label_iframe_with_class() {
 }
 add_action('wp_footer', 'label_iframe_with_class');
 
+//ally-remove-title required class to remove title from elements with the title attribute
+add_action('wp_footer', function () {
+    ?>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+			  document.querySelectorAll('.ally-remove-title [title]').forEach(element => {
+				element.removeAttribute('title');
+			  });
+			});
+		</script>
+	<?php
+});
