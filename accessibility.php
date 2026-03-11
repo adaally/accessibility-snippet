@@ -1729,7 +1729,7 @@ add_action('wp_footer', function () {
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
 			  document.querySelectorAll('.ally-list-post-collection').forEach(wrapper => {
-				const collection = wrapper.querySelector('.ae-post-collection');
+				const collection = wrapper.querySelector('.ae-post-collection, .ae-post-list-wrapper');
 				 wrapper.removeAttribute("role");
 				if (!collection) return;
 
