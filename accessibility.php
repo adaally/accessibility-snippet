@@ -1759,3 +1759,22 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+//for input file elements it clicks the element on Enter key
+add_action('wp_footer', function () {
+    ?>
+		<script>
+			document.addEventListener('keydown', (event) => {
+			  if (event.key !== 'Enter') return;
+
+			  const el = document.activeElement;
+
+			  if (el?.matches('input[type="file"]')) {
+				event.preventDefault();
+				el.click();
+			  }
+			});
+
+		</script>
+	<?php
+});
