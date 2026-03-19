@@ -1674,7 +1674,7 @@ add_action('wp_footer', function() {
 				const parentItem = title.closest('.has_ae_slider');
 				if(!parentItem)return;
 				
-				const btn = parentItem.querySelector('.elementor-button, .ally-btn a');
+				const btn = parentItem.querySelector('.elementor-button, .ally-button a');
 				btn.setAttribute('aria-describedby', title.id);
 			})
 	  });
