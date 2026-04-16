@@ -1778,3 +1778,34 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+//Function to replace nav tag and remove aria-label form footer nav
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const containers = document.querySelectorAll('.ally-extra-footer-nav');
+
+            containers.forEach(container => {
+                const oldNav = container.querySelector('nav.e-n-menu');
+                
+                if (oldNav) {
+                    const newDiv = document.createElement('div');
+
+                    Array.from(oldNav.attributes).forEach(attr => {
+                        if (attr.name.toLowerCase() !== 'aria-label') {
+                            newDiv.setAttribute(attr.name, attr.value);
+                        }
+                    });
+
+                    while (oldNav.firstChild) {
+                        newDiv.appendChild(oldNav.firstChild);
+                    }
+
+                    oldNav.parentNode.replaceChild(newDiv, oldNav);
+                }
+            });
+        });
+    </script>
+    <?php
+}, 100);
