@@ -171,21 +171,35 @@ add_action('wp_footer', function () {
 // (IMPORTANT) If there are multiple accordions in the page, the class can be added to the parent of all accordions
 // It restructures Elementor Accordion to remove arrow key navigation
 // It also removes the aria-label from the accordion and the role="region" and aria-labelledby from the content
-//It needs this css in the parent
-//details[open] .e-con {
-//    display: flex !important;
-//}
-
-//summary {
-//    background: #fff;
-//}
 add_action('wp_footer', function () {
     ?>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
-	  document.querySelectorAll('.ally-accordion .e-n-accordion').forEach(acc => {
+	  document.querySelectorAll('.ally-accordion .e-n-accordion').forEach((acc, index) => {
+		  if(index === 0) {
+			    const style = document.createElement('style');
+
+				  style.textContent = `
+
+					details[open] .e-con {
+
+					  display: flex !important;
+
+					}
+
+				  `;
+
+				  document.head.appendChild(style);
+		  }
+		  
 	acc.removeAttribute('aria-label');
+	let backgroundColor = undefined;
 	acc.querySelectorAll('details').forEach(item => {
+		const summary = item.querySelector('summary');
+		if(summary) {
+			backgroundColor = window.getComputedStyle(summary).backgroundColor;
+		}
+		
 		item.querySelectorAll('[role="region"]').forEach(element => {
 			element.removeAttribute('role');
 			element.removeAttribute('aria-labelledby');
@@ -196,6 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		div.appendChild(item);
 		acc.appendChild(div);
 	});
+		  
+	acc.querySelectorAll('summary').forEach(item => item.style.backgroundColor = backgroundColor || '#fff');
   
   const blockKeys = (e) => {
     
@@ -239,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <?php
   
 });
+
 
 
 // It requires "ally-als" class in the parent container of the accordion
