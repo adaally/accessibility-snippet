@@ -1839,3 +1839,35 @@ add_action('wp_footer', function() {
     </script>
     <?php
 });
+
+// Remove certain items from the page sitemap
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.querySelector('.ada-sitemap');
+            if (!container) return;
+
+            setTimeout(function() {
+				//Here will be the exact visual text of the links to be removed in the sitemap
+                const termsToRemove = [
+                    'Key Box Inquiry Received',
+                ];
+
+                const sitemapLinks = container.querySelectorAll('.elementor-sitemap-list a');
+
+                sitemapLinks.forEach(function (link) {
+                    const text = link.textContent.trim();
+                    
+                    if (termsToRemove.includes(text)) {
+                        const listItem = link.closest('li');
+                        if (listItem) {
+                            listItem.remove();
+                        }
+                    }
+                });
+            }, 500);
+        });
+    </script>
+    <?php
+});
