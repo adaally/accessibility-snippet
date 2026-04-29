@@ -1826,3 +1826,16 @@ add_action('wp_footer', function () {
     </script>
     <?php
 }, 100);
+
+//update header nav aria-label
+add_action('wp_footer', function() {
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nav = document.querySelector('.ada-header-nav nav');
+            if (!nav) return;
+            nav.setAttribute('aria-label', 'Primary');
+        });
+    </script>
+    <?php
+});
