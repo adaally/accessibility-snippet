@@ -167,15 +167,13 @@ add_action('wp_footer', function () {
 
 });
 
-// It requires "ally-accordion" class in the parent container of the accordion
-// (IMPORTANT) If there are multiple accordions in the page, the class can be added to the parent of all accordions
 // It restructures Elementor Accordion to remove arrow key navigation
 // It also removes the aria-label from the accordion and the role="region" and aria-labelledby from the content
 add_action('wp_footer', function () {
     ?>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
-	  document.querySelectorAll('.ally-accordion .e-n-accordion').forEach((acc, index) => {
+	  document.querySelectorAll('.e-n-accordion').forEach((acc, index) => {
 		  if(index === 0) {
 			    const style = document.createElement('style');
 
@@ -280,7 +278,7 @@ add_action('wp_footer', function() {
 
 
 
-// Add list semantics to galleries, it requires the class "ally-gls" in the parent container of the gallery. 
+// Add list semantics to galleries
 // It also adds aria-label to the links and alt text to the images in the modal, and an invisible alert with the current image number and total images when the modal is open.
 add_action('wp_footer', function () {
 
@@ -297,23 +295,20 @@ add_action('wp_footer', function () {
     document.addEventListener('DOMContentLoaded', function () {
         createInvisibleAlert();
     
-        document.querySelectorAll('.ally-gls').forEach(function (galleryWrapper) {
-            const container = galleryWrapper.querySelector('.elementor-gallery__container');
-            if (container) {
-                container.setAttribute('role', 'list');
-                container.setAttribute('aria-label', 'Gallery');
-            
-                const children = Array.from(container.children);
-                children.forEach(function (child) {
-                const wrapper = document.createElement('div');
-                wrapper.style.pointerEvents = 'none';
-                child.style.pointerEvents = 'auto';
-                wrapper.setAttribute('role', 'listitem');
-                wrapper.appendChild(child.cloneNode(true));
-                container.replaceChild(wrapper, child);
+        document.querySelectorAll('.elementor-gallery__container').forEach(function (container) {
+            container.setAttribute('role', 'list');
+            container.setAttribute('aria-label', 'Gallery');
+        
+            const children = Array.from(container.children);
+            children.forEach(function (child) {
+              const wrapper = document.createElement('div');
+              wrapper.style.pointerEvents = 'none';
+              child.style.pointerEvents = 'auto';
+              wrapper.setAttribute('role', 'listitem');
+              wrapper.appendChild(child.cloneNode(true));
+              container.replaceChild(wrapper, child);
             });
-            }
-            galleryWrapper.querySelectorAll('a').forEach(function (anchor) {
+            container.querySelectorAll('a').forEach(function (anchor) {
                 anchor.setAttribute('role', 'button');
 
                 const imgDiv = anchor.querySelector('div[role="img"]');
@@ -487,123 +482,117 @@ add_action('wp_enqueue_scripts', function() {
 });
 
 // Thumbnail accessibility
+// Works with image links of elementor lightbox
 // Update the link label that opens an image modal and update the alt text of the image in the modal
-// It requires "ally-tl" class in the item container
-// It also requires "ally-modal-listener" class in the parent of this item to add focus trap
 add_action('wp_footer', function() {
   ?>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-			const ALLY_THUMBNAIL_CLASS_ID = ".ally-tl";
-			
-			document.querySelectorAll(ALLY_THUMBNAIL_CLASS_ID + " a").forEach(item => {
-				const img = item.querySelector("img");
-				const altText = img.getAttribute("alt");
-				item.setAttribute("aria-label", "View full screen: " + altText);
-				item.setAttribute("role", "button");
-				item.addEventListener('click', () => {
-					setTimeout(() => {
-						updateModal();
-					}, 300);
-				});
-			});
-			
-			function updateModal() {
-				const dialog = document.querySelector('.dialog-widget');
-			  if (dialog) {
-				  dialog.setAttribute("role", "dialog");
-				  
-				  //Add alt text in the modal images
-				  const imgsDialog = dialog.querySelectorAll(".swiper-slide:not(.swiper-slide-duplicate) img");
-				  const imgsNoDialog = document.querySelectorAll(ALLY_THUMBNAIL_CLASS_ID + " img");
-				  imgsNoDialog.forEach((item, index) => {
-					 const altText = item.getAttribute("alt");
-					  if(imgsDialog[index]) {
-						  imgsDialog[index].setAttribute("alt", altText);
-					  }
-				  });
-				  
-				  const activeImg = dialog.querySelector(".swiper-slide-active img");
-				  if(activeImg) {
-					activeImg.setAttribute("tabindex", "-1");
-				  	activeImg.focus();
-				  }
-				  
-			  }
-			}
-        });
+document.addEventListener('DOMContentLoaded', function () {
+  const openerSelector = 'a[data-elementor-open-lightbox]';
+  const dialogSelector = '.dialog-widget';
+  const closeButtonSelector = '.dialog-close-button';
+
+  let currentLightboxOpener = null;
+
+  document.querySelectorAll(openerSelector).forEach((item) => {
+    const img = item.querySelector('img');
+    const altText = img?.getAttribute('alt') || '';
+
+    item.setAttribute('aria-label', 'View full screen: ' + altText);
+    item.setAttribute('role', 'button');
+
+    item.addEventListener('click', () => {
+      currentLightboxOpener = item;
+
+      setTimeout(() => {
+        updateModal();
+      }, 300);
+    });
+  });
+
+  function updateModal() {
+    const dialog = document.querySelector(dialogSelector);
+
+    if (!dialog) return;
+
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+
+    // Add alt text in the modal images
+    const imgsDialog = dialog.querySelectorAll(
+      '.swiper-slide:not(.swiper-slide-duplicate) img'
+    );
+
+    const imgsNoDialog = document.querySelectorAll(`${openerSelector} img`);
+
+    imgsNoDialog.forEach((item, index) => {
+      const altText = item.getAttribute('alt') || '';
+
+      if (imgsDialog[index]) {
+        imgsDialog[index].setAttribute('alt', altText);
+      }
+    });
+
+    const activeImg = dialog.querySelector('.swiper-slide-active img');
+
+    if (activeImg) {
+      activeImg.setAttribute('tabindex', '-1');
+      activeImg.focus();
+    }
+
+    setupReturnFocus(dialog);
+  }
+
+  function setupReturnFocus(dialog) {
+    const closeButton = dialog.querySelector(closeButtonSelector);
+
+    /**
+     * Attach this only once.
+     * It will always use currentLightboxOpener,
+     * which updates every time a new image opens the modal.
+     */
+    if (closeButton && closeButton.dataset.allyReturnFocus !== 'true') {
+      closeButton.dataset.allyReturnFocus = 'true';
+
+      closeButton.addEventListener('click', () => {
+        returnFocusToCurrentOpener(500);
+      });
+
+      closeButton.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          returnFocusToCurrentOpener(500);
+        }
+      });
+    }
+
+    if (window.allyLightboxEscapeHandler) {
+      document.removeEventListener('keydown', window.allyLightboxEscapeHandler);
+    }
+
+    window.allyLightboxEscapeHandler = function (e) {
+      if (e.key !== 'Escape') return;
+
+      returnFocusToCurrentOpener(700);
+
+      document.removeEventListener('keydown', window.allyLightboxEscapeHandler);
+      window.allyLightboxEscapeHandler = null;
+    };
+
+    document.addEventListener('keydown', window.allyLightboxEscapeHandler);
+  }
+
+  function returnFocusToCurrentOpener(delay) {
+    setTimeout(() => {
+      if (currentLightboxOpener && document.body.contains(currentLightboxOpener)) {
+        currentLightboxOpener.focus();
+      }
+    }, delay);
+  }
+});
     </script>
     <?php
 });
 
-// It requires "ally-modal-listener" class in the parent container of the items that open modals
-// (IMPORTANT) If there are multiple items with "ally-tl" the "ally-modal-listener" class should be in the common parent of all these items
-// It adds focus back to the opener when the modal is closed, either by the close button or by the escape key
-add_action('wp_footer', function () {
-    ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  let modalFound = false;
-
-  function handleEscape(opener) {
-    const onKey = (e) => {
-      const modal = document.querySelector(".dialog-widget-content");
-      
-      if (!modal) {
-        document.removeEventListener("keydown", onKey);
-        return;
-      }
-
-      if (e.key === "Escape") {
-        document.removeEventListener("keydown", onKey);
-        setTimeout(() => opener.focus(), 700);
-      }
-    };
-
-    document.addEventListener("keydown", onKey);
-  }
-
-  function attachCloseEvents(closeBtn, opener) {
-    const returnFocus = () => setTimeout(() => opener.focus(), 500);
-
-    closeBtn.addEventListener('click', returnFocus);
-
-    closeBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') returnFocus();
-    });
-
-    handleEscape(opener);
-  }
-
-  function observeModal(opener) {
-    const observer = new MutationObserver(() => {
-      const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
-      if (!closeBtn) return;
-
-      modalFound = true;
-      attachCloseEvents(closeBtn, opener);
-      observer.disconnect();
-    });
-
-    observer.observe(document.body, { subtree: true, childList: true });
-  }
-
-  document.querySelectorAll('.ally-modal-listener a').forEach(opener => {
-    opener.addEventListener('click', () => {
-      if (modalFound) {
-        const closeBtn = document.querySelector('.dialog-widget-content .dialog-close-button');
-        if (closeBtn) attachCloseEvents(closeBtn, opener);
-      } else {
-        observeModal(opener);
-      }
-    });
-  });
-
-});
-</script>
-    <?php
-});
 
 
 // It requires "ally-ts" class in at least 2 elements inside a container, 
@@ -703,107 +692,182 @@ add_action('wp_footer', function() {
     <?php
 });
 
-// It requires "ally-hero-slider" class in the parent container of the hero slider
-// It adds a button to pause/resume the autoplay of the slider
+
+// It adds a button to pause/resume the autoplay of the slider only if the autoplay is active
 add_action('wp_footer', function() {
  ?>
     <script>
-    // Wait for the DOM content to be fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
+		document.addEventListener('DOMContentLoaded', function () {
+		  const initializedWidgets = new WeakSet();
 
-        // Create a MutationObserver to watch for changes in the DOM
-        const observer = new MutationObserver(function(mutations, obs) {
-            // Look for the swiper wrapper element
-            const swiperWrapper = document.querySelector('.ally-hero-slider .elementor-main-swiper .swiper-wrapper');
-            
-            // If the swiper wrapper is found, set up slider controls and stop observing
-            if (swiperWrapper) {
-                setupSliderControls();
-                obs.disconnect(); // Stop observing once we have initialized the controls
-            }
-        });
+		  const observer = new MutationObserver(function () {
+			setupSliderControls();
+		  });
 
-        // Start observing the document for child and subtree changes
-        observer.observe(document, {
-            childList: true,
-            subtree: true
-        });
+		  observer.observe(document.body, {
+			childList: true,
+			subtree: true
+		  });
 
-        // Function to set up the slider controls
-        function setupSliderControls() {
-            // Loop through all elements with the class 'elementor-widget-slides'
-            document.querySelectorAll('.elementor-widget-slides').forEach(function($thisWidget, index) {
-                // Find the main swiper element within the current widget
-                var $slider = $thisWidget.querySelector('.elementor-main-swiper');
-                var $swiperWrapper = $slider.querySelector('.swiper-wrapper');
-                var swiperWrapperId = $swiperWrapper.getAttribute('id');
+		  // Run once immediately too
+		  setupSliderControls();
 
-                // If the swiper wrapper does not have an ID, assign a unique ID
-                if (!swiperWrapperId) {
-                    swiperWrapperId = 'swiper-wrapper-' + index;
-                    $swiperWrapper.setAttribute('id', swiperWrapperId);
-                }
-				
-				const pauseSVG = `
-                    <svg style="position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);" xmlns="http://www.w3.org/2000/svg" width="24" height="24"  fill="#E83416" viewBox="0 0 24 24">
-                      <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                    </svg>
-                `;
-                const playSVG = `
-                    <svg style="position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#E83416" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                `;
+		  function setupSliderControls() {
+			document.querySelectorAll('.elementor-widget-slides').forEach(function ($thisWidget, index) {
+			  if (initializedWidgets.has($thisWidget)) return;
 
-                // Create a pause/resume button for the slider
-                var buttonId = 'pause-button-' + index;
-                var $button = document.createElement('button');
-				$button.innerHTML = pauseSVG;
-                $button.setAttribute('id', buttonId);
-                $button.setAttribute('aria-controls', swiperWrapperId);
-                $button.setAttribute('aria-label', 'Pause Slider');
-                $button.setAttribute('aria-pressed', 'false');
-				$button.style.borderRadius= '50%';
-				$button.style.width= '60px';
-				$button.style.height= '60px';
-                // Insert the button before the slider in the DOM
-                $slider.parentNode.insertBefore($button, $slider);
+			  const $slider = $thisWidget.querySelector('.elementor-main-swiper');
+			  if (!$slider) return;
 
-                // Add an event listener to handle the button's click event
-                $button.addEventListener('click', function() {
-                    // Toggle autoplay and update button text and aria-pressed attribute
-                    if (this.getAttribute("aria-label") === 'Pause Slider') {
-                        $slider.swiper.autoplay.stop();
-                        $button.innerHTML = playSVG;
-                        this.setAttribute('aria-pressed', 'true');
-						this.setAttribute('aria-label', 'Play Slider');
-                    } else {
-                        $slider.swiper.autoplay.start();
-                        $button.innerHTML = pauseSVG;
-                        this.setAttribute('aria-pressed', 'false');
-						this.setAttribute('aria-label', 'Pause Slider');
-                    }
-                });
-            });
-        }
-    });
+			  /**
+			   * Elementor sometimes creates the HTML before Swiper is ready.
+			   * So if swiper does not exist yet, try again later.
+			   */
+			  if (!$slider.swiper || !$slider.swiper.autoplay) {
+				setTimeout(setupSliderControls, 300);
+				return;
+			  }
+
+			  const widgetWithSettings = $thisWidget.matches('[data-settings]')
+				? $thisWidget
+				: $thisWidget.closest('[data-settings]');
+
+			  if (!widgetWithSettings) return;
+
+			  const settingsRaw = widgetWithSettings.getAttribute('data-settings');
+
+			  if (!settingsRaw) return;
+
+			  let settings;
+
+			  try {
+				settings = JSON.parse(settingsRaw);
+			  } catch (error) {
+				console.warn('Invalid Elementor data-settings JSON:', error);
+				return;
+			  }
+
+			  console.log('Elementor slider settings:', settings);
+
+			  /**
+			   * Only add the button if Elementor autoplay is enabled.
+			   */
+			  if (settings.autoplay !== 'yes') return;
+
+			  const autoplaySpeed = Number(settings.autoplay_speed) || 5000;
+
+			  const $swiperWrapper = $slider.querySelector('.swiper-wrapper');
+			  if (!$swiperWrapper) return;
+
+			  let swiperWrapperId = $swiperWrapper.getAttribute('id');
+
+			  if (!swiperWrapperId) {
+				swiperWrapperId = 'swiper-wrapper-' + index;
+				$swiperWrapper.setAttribute('id', swiperWrapperId);
+			  }
+
+			  /**
+			   * Avoid adding duplicate buttons.
+			   */
+			  if ($thisWidget.querySelector('.ally-slider-toggle')) {
+				initializedWidgets.add($thisWidget);
+				return;
+			  }
+
+			  /**
+			   * Apply Elementor autoplay speed back to Swiper.
+			   */
+			  if ($slider.swiper.params) {
+				$slider.swiper.params.autoplay = {
+				  ...$slider.swiper.params.autoplay,
+				  delay: autoplaySpeed
+				};
+
+				if ($slider.swiper.originalParams?.autoplay) {
+				  $slider.swiper.originalParams.autoplay.delay = autoplaySpeed;
+				}
+
+				$slider.swiper.autoplay.stop();
+				$slider.swiper.autoplay.start();
+			  }
+
+			  const pauseSVG = `
+				<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"></path>
+				</svg>
+			  `;
+
+			  const playSVG = `
+				<svg style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#000000" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				  <path d="M8 5v14l11-7z"></path>
+				</svg>
+			  `;
+
+        const style = document.createElement('style');
+
+				style.textContent = `
+				  .ally-slider-toggle:focus-visible {
+					outline: 2px solid #000 !important;
+					outline-offset: -4px !important;
+				  }
+				`;
+
+				document.head.appendChild(style);
+
+			  const $button = document.createElement('button');
+
+			  $button.className = 'ally-slider-toggle';
+			  $button.type = 'button';
+			  $button.innerHTML = pauseSVG;
+
+			  $button.setAttribute('aria-controls', swiperWrapperId);
+			  $button.setAttribute('aria-label', 'Pause Slider');
+
+			  $button.style.borderRadius = '50%';
+			  $button.style.width = '60px';
+			  $button.style.height = '60px';
+			  $button.style.bottom = '20px';
+			  $button.style.right = '20px';
+			  $button.style.position = 'absolute';
+			  $button.style.background = '#fff';
+
+			  $slider.parentNode.insertBefore($button, $slider);
+
+			  $button.addEventListener('click', function () {
+				const isCurrentlyPlaying = this.getAttribute('aria-label') === 'Pause Slider';
+
+				if (isCurrentlyPlaying) {
+				  $slider.swiper.autoplay.stop();
+
+				  $button.innerHTML = playSVG;
+				  this.setAttribute('aria-label', 'Play Slider');
+				} else {
+				  $slider.swiper.params.autoplay = {
+					...$slider.swiper.params.autoplay,
+					delay: autoplaySpeed
+				  };
+
+				  $slider.swiper.autoplay.start();
+
+				  $button.innerHTML = pauseSVG;
+				  this.setAttribute('aria-label', 'Pause Slider');
+				}
+			  });
+
+			  initializedWidgets.add($thisWidget);
+			});
+		  }
+		});
     </script>
     <?php
 });
 
-
-// It requires "ally-hero-slider-container" class in the parent container of the hero slider
+//It makes the slider accessible
 // It adds aria-hidden to the non active slides and aria-label to the pagination bullets with the format "Slide X of Y", and alt text to the images with class "swiper-slide-bg"
 add_action('wp_footer', function() {
 ?>
 		<script type="text/javascript">
-			const ALLY_HERO_SLIDER_CONTAINER = ".ally-hero-slider-container";
+const ALLY_HERO_SLIDER_CONTAINER = ".elementor-main-swiper";
 			document.addEventListener('DOMContentLoaded', () => {
 				
 				function updateAriaHidden(heroContainer) {
