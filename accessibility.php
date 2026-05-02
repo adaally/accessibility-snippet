@@ -1020,7 +1020,7 @@ add_action('wp_footer', function () {
 	<?php
 });
 
-// It requires "ally-tls" class in the parent container of the timeline widget
+
 // It adds list semantics to the timeline widget
 add_action('wp_footer', function () {
     ?>
