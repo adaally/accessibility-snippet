@@ -262,14 +262,13 @@ add_action('wp_footer', function() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.ally-als').forEach(function (accordionWrapper) {
-            const accordion = accordionWrapper.querySelector('.e-n-accordion');
-            if (accordion) {
-                accordion.setAttribute('role', 'list');
-                Array.from(accordion.children).forEach(function (child) {
-                    child.setAttribute('role', 'listitem');
-                });
-            }
+        document.querySelectorAll('.e-n-accordion').forEach(function (accordion) {
+			if(Array.from(accordion.children).length === 1) return;
+			accordion.setAttribute('role', 'list');
+
+			Array.from(accordion.children).forEach(function (child) {
+				child.setAttribute('role', 'listitem');
+			});
         });
     });
     </script>
@@ -595,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-// It requires "ally-ts" class in at least 2 elements inside a container, 
+// It requires "ally-ls" class in at least 2 elements inside a container, 
 // then it adds role list to the common ancestor and role listitem to the direct children that contains an element with the selector,
 // and aria-hidden to the ones that don't contain any.
 add_action('wp_footer', function() {
@@ -1026,17 +1025,14 @@ add_action('wp_footer', function () {
 add_action('wp_footer', function () {
     ?>
     <script>
-		    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.ally-tls').forEach(function (daysWrapper) {
-            const daysContainer = daysWrapper.querySelector('.uael-days');
-            if (daysContainer) {
-                daysContainer.setAttribute('role', 'list');
-                Array.from(daysContainer.children).forEach(function (child) {
-                    child.setAttribute('role', 'listitem');
-                });
-            }
-        });
-    });
+		document.addEventListener('DOMContentLoaded', function () {
+			document.querySelectorAll('.uael-days').forEach(function (daysContainer) {
+				daysContainer.setAttribute('role', 'list');
+				Array.from(daysContainer.children).forEach(function (child) {
+					child.setAttribute('role', 'listitem');
+				});
+			});
+		});
 		</script>
 	<?php
 });
@@ -1408,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php
 });
 
-// Requires "ally-gallery-archive" class in the parent container
+
 // It adds role list to the gallery grid and role listitem to the items, 
 // and it traps the focus inside the fancybox modal when it's open, and returns focus to the opener when it's closed.
 add_action('wp_head', function () {
@@ -1422,7 +1418,7 @@ add_action('wp_head', function () {
 			 1. Add list semantics to gallery grid
 		  ========================================================== */
       function applyGalleryListSemantics() {
-        document.querySelectorAll('.ally-gallery-archive .uael-img-gallery-wrap').forEach((list) => {
+        document.querySelectorAll('.uael-img-gallery-wrap').forEach((list) => {
           list.setAttribute('role', 'list');
 
           list.querySelectorAll('.uael-grid-item').forEach((item) => {
@@ -1562,7 +1558,7 @@ add_action('wp_head', function () {
 		  ========================================================== */
       function setupGalleryInteractions() {
         document.addEventListener('click', (e) => {
-          const opener = e.target.closest('.ally-gallery-archive .uael-grid-img');
+          const opener = e.target.closest('.uael-grid-img');
           if (opener) {
             lastFocusedGalleryLink = opener;
           }
@@ -1755,7 +1751,7 @@ add_action('wp_footer', function() {
 				const parentItem = title.closest('.has_ae_slider');
 				if(!parentItem)return;
 				
-				const btn = parentItem.querySelector('.elementor-button, .ally-button a');
+				const btn = parentItem.querySelector('.elementor-button, .ally-button a, .e-n-accordion-item-title');
 				btn.setAttribute('aria-describedby', title.id);
 			})
 	  });
@@ -1809,14 +1805,10 @@ add_action('wp_footer', function () {
     ?>
 		<script>
 			document.addEventListener('DOMContentLoaded', () => {
-			  document.querySelectorAll('.ally-list-post-collection').forEach(wrapper => {
-				const collection = wrapper.querySelector('.ae-post-collection, .ae-post-list-wrapper');
-				 wrapper.removeAttribute("role");
-				if (!collection) return;
+			  document.querySelectorAll('.ae-post-collection, .ae-post-list-wrapper').forEach(wrapper => {
+				wrapper.setAttribute('role', 'list');
 
-				collection.setAttribute('role', 'list');
-
-				collection.querySelectorAll(':scope > article').forEach(article => {
+				wrapper.querySelectorAll(':scope > article').forEach(article => {
 				  article.setAttribute('role', 'listitem');
 					article.querySelectorAll('[role="listitem"]').forEach(item => {
 						item.removeAttribute('role');
