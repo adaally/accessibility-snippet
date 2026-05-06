@@ -1914,3 +1914,66 @@ add_action('wp_footer', function () {
     </script>
     <?php
 });
+
+//ADD EXTRA CONTEXT TO THE ADD BUTTON ON FORMS, LIKE ADD JOB, ADD CLASS
+add_action('wp_footer', function () {
+    ?>
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				(function () {
+				  function slugify(value) {
+					return value
+					  .toLowerCase()
+					  .trim()
+					  .replace(/[^a-z0-9]+/g, '-')
+					  .replace(/^-+|-+$/g, '');
+				  }
+
+				  function connectAddEntryButtons() {
+					const buttons = document.querySelectorAll('.gpnf-add-entry');
+
+					buttons.forEach((button, index) => {
+					  const currentField = button.closest('.gfield');
+
+					  if (!currentField) return;
+
+					  const previousField = currentField.previousElementSibling;
+
+					  if (!previousField || !previousField.classList.contains('gfield--type-html')) {
+						return;
+					  }
+
+					  if (!previousField.id) {
+						const form = currentField.closest('form');
+						const formId = form?.id ? slugify(form.id) : 'gravity-form';
+
+						previousField.id = `${formId}-html-description-${index + 1}`;
+					  }
+
+					  button.setAttribute('aria-describedby', previousField.id);
+					});
+				  }
+
+				  function init() {
+					connectAddEntryButtons();
+
+					const observer = new MutationObserver(() => {
+					  connectAddEntryButtons();
+					});
+
+					observer.observe(document.body, {
+					  childList: true,
+					  subtree: true
+					});
+				  }
+
+				  if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', init);
+				  } else {
+					init();
+				  }
+				})();
+			});
+		</script>
+	<?php
+});
