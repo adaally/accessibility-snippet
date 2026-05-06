@@ -494,8 +494,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentLightboxOpener = null;
 
   document.querySelectorAll(openerSelector).forEach((item) => {
-    const img = item.querySelector('img');
-    const altText = img?.getAttribute('alt') || '';
+    const img = item.querySelector('img, [role="img"]');
+    const altText = img?.getAttribute('alt') || img?.getAttribute('aria-label') || '';
 
     item.setAttribute('aria-label', 'View full screen: ' + altText);
     item.setAttribute('role', 'button');
