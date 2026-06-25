@@ -1978,3 +1978,25 @@ add_action('wp_footer', function () {
 		</script>
 	<?php
 });
+
+//IMPROVING FOCUS INDICATOR ON SUBMENUS
+add_action('wp_footer', function () {
+    ?>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const style = document.createElement('style');
+
+    style.textContent = `
+      .e-n-menu-item .e-n-menu-content a:focus,
+	  .e-n-menu-item .e-n-menu-content a:focus-visible{
+        outline-offset: -3px !important;
+		  outline: 2px solid #000 !important;
+			  box-shadow: none !important
+      }
+    `;
+
+    document.head.appendChild(style);
+  });
+</script>
+	<?php
+});
