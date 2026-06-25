@@ -823,8 +823,8 @@ add_action('wp_footer', function() {
 			  $button.setAttribute('aria-label', 'Pause Slider');
 
 			  $button.style.borderRadius = '50%';
-			  $button.style.width = '60px';
-			  $button.style.height = '60px';
+			  $button.style.width = '40px';
+			  $button.style.height = '40px';
 			  $button.style.zIndex = '100';
 			  $button.style.bottom = '20px';
 			  $button.style.right = '20px';
