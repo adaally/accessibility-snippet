@@ -1297,13 +1297,24 @@ add_action('wp_footer', function () {
 	?>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
+				let initialLoadSkipped = false;
+
 				function focusFirstFieldIn(form) {
-					
 				  const firstField = form.querySelector('.gf_progressbar_title');
-				  if (firstField) {
-					  firstField.tabIndex = '-1'
-					firstField.focus();
+				  if (!firstField) return;
+
+				  const currentStep = form.querySelector('.gf_step_current_page')?.textContent.trim();
+
+				  // Skip focusing only the very first time the form is on step 1
+				  if (!initialLoadSkipped && currentStep === '1') {
+					initialLoadSkipped = true;
+					return;
 				  }
+
+				  initialLoadSkipped = true;
+
+				  firstField.tabIndex = '-1';
+				  firstField.focus();
 				}
 
 				function observeFormsAndFocus() {
