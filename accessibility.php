@@ -1295,6 +1295,7 @@ add_action('wp_head', function () {
 
 });
 
+//ally-form-focus-first
 //Focus title of current step in step forms
 add_action('wp_footer', function () {
 	?>
