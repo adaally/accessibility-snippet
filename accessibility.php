@@ -338,10 +338,13 @@ add_action('wp_footer', function () {
     
         function setAltToModalImgs(dialog) {
             const imgsDialog = dialog.querySelectorAll(".swiper-slide:not(.swiper-slide-duplicate) img");
-            const imgsNoDialog = document.querySelectorAll(".elementor-gallery__container div[role='img']");
+            const imgsNoDialog = document.querySelectorAll(".elementor-widget-gallery .elementor-gallery__container div[role='img']");
             imgsNoDialog.forEach((item, index) => {
-            const altText = item.getAttribute("aria-label");
-            imgsDialog[index].setAttribute("alt", altText);
+				if(imgsDialog[index]) {
+					const altText = item.getAttribute("aria-label");
+            		imgsDialog[index].setAttribute("alt", altText);
+				}
+            
         });
         
             const imgsDuplicate = dialog.querySelectorAll(".swiper-slide-duplicate");
@@ -355,7 +358,7 @@ add_action('wp_footer', function () {
             }
         }
     
-        const elements = document.querySelectorAll(".ally-gls .elementor-gallery__container a");
+        const elements = document.querySelectorAll(".elementor-widget-gallery .elementor-gallery__container a");
         elements.forEach(element => {
             element.addEventListener('click', () => {
                 setTimeout(() => {
