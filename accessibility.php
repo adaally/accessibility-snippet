@@ -1767,7 +1767,7 @@ add_action('wp_footer', function() {
 				const parentItem = title.closest('.has_ae_slider');
 				if(!parentItem)return;
 				
-				const btn = parentItem.querySelector('.elementor-button, .ally-button a, .e-n-accordion-item-title');
+				const btn = parentItem.querySelector('.elementor-button, .ally-button a, .e-n-accordion-item-title, .ally-btn a');
 				btn.setAttribute('aria-describedby', title.id);
 			})
 	  });
